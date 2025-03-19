@@ -49,6 +49,9 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.runtime.livedata)
+    // firebase auth
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -67,4 +70,11 @@ dependencies {
     // Coroutine Call Adapter Factory
     implementation(libs.adapter.kotlin.coroutines)
     implementation(libs.retrofit)
+
+    // Jetpack Compose Navigation
+    implementation("androidx.navigation:navigation-compose:2.7.4")
+    // material3
+    implementation("androidx.compose.material3:material3:1.2.0")
+
+
 }
