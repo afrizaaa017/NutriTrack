@@ -70,8 +70,8 @@ fun SignUpScreen(
             label = { Text(text = "Email") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
             ),
         )
@@ -83,8 +83,8 @@ fun SignUpScreen(
             onValueChange = { password = it },
             label = { Text(text = "Password") },
             shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
             )
         )
