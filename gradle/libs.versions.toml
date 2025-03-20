@@ -1,5 +1,4 @@
 [versions]
-adapterKotlinCoroutines = "2.6.0"
 agp = "8.8.0"
 converterGson = "2.9.0"
 gson = "2.10.1"
@@ -15,10 +14,8 @@ runtimeLivedata = "1.7.8"
 googleGmsGoogleServices = "4.4.2"
 firebaseAuth = "23.2.0"
 retrofit = "2.9.0"
-firebaseAppdistributionGradle = "5.1.1"
 
 [libraries]
-adapter-kotlin-coroutines = { module = "com.jakewharton.retrofit2:adapter-kotlin-coroutines", version.ref = "adapterKotlinCoroutines" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -34,11 +31,10 @@ androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3"}
 androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
-firebase-appdistribution-gradle = { group = "com.google.firebase", name = "firebase-appdistribution-gradle", version.ref = "firebaseAppdistributionGradle" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
