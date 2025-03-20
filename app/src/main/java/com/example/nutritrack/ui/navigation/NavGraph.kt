@@ -22,7 +22,7 @@ import com.example.nutritrack.ui.auth.ForgotPasswordScreen
 import com.example.nutritrack.ui.auth.SignInScreen
 import com.example.nutritrack.ui.auth.SignUpScreen
 import com.example.nutritrack.ui.screen.dashboard.DashboardScreen
-import com.example.nutritrack.ui.screen.eats.EatsScreen
+import com.example.nutritrack.ui.screen.eats.FoodScreen
 import com.example.nutritrack.ui.screen.leaderboard.LeaderboardScreen
 import com.example.nutritrack.ui.screen.profile.ProfileScreen
 
@@ -74,7 +74,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier, au
         modifier = modifier
     ) {
         composable(BottomNavItem.Dashboard.route) { DashboardScreen() }
-        composable(BottomNavItem.Eats.route) { EatsScreen() }
+        composable(BottomNavItem.Eats.route) { FoodScreen() }
         composable(BottomNavItem.Leaderboard.route) { LeaderboardScreen() }
         composable(BottomNavItem.Profile.route) { ProfileScreen(modifier, navController, authViewModel) }
     }
