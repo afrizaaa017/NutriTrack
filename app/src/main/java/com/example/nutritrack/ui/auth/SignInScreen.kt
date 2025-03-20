@@ -67,11 +67,10 @@ fun SignInScreen(
             label = { Text(text = "Email") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
-            ),
-
+//            colors = TextFieldDefaults.outlinedTextFieldColors(
+//                containerColor = MaterialTheme.colorScheme.tertiary,
+//                unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
+//            ),
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -81,10 +80,10 @@ fun SignInScreen(
             onValueChange = { password = it },
             label = { Text(text = "Password") },
             shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
-            )
+//            colors = TextFieldDefaults.outlinedTextFieldColors(
+//                containerColor = MaterialTheme.colorScheme.tertiary,
+//                unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
+//            )
         )
 
         Spacer(modifier = Modifier.height(48.dp))
