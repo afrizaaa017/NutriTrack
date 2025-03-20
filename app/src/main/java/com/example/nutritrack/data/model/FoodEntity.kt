@@ -14,7 +14,11 @@ data class Food(
     val ndbNumber: String?,
     val additionalDescriptions: String?,
     val allHighlightFields: String?,
-    val score: Double
+    val score: Double,
+    val packageWeight: String?,
+    val servingSize: String?,
+    val servingSizeUnit: String?,
+    val householdServingFullText: String?,
 )
 
 data class FoodNutrient(
