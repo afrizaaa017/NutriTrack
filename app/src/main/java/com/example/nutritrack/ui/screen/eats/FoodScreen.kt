@@ -1,5 +1,6 @@
 package com.example.nutritrack.ui.screen.eats
 
+import android.health.connect.datatypes.MealType
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -31,6 +32,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
 //import androidx.compose.material3.AlertDialog
 //import androidx.compose.material3.Button
 //import androidx.compose.material3.Card
@@ -41,7 +43,7 @@ import com.example.nutritrack.viewmodel.FoodViewModelFactory
 import com.example.nutritrack.ui.theme.GreenPrimary
 
 @Composable
-fun FoodScreen() {
+fun FoodScreen(navController: NavController, mealType: String) {
     val repository = FoodRepository()
     val viewModel: FoodViewModel = viewModel(factory = FoodViewModelFactory(repository))
     val foods by viewModel.foodState.collectAsState()
