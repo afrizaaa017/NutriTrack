@@ -43,10 +43,10 @@ fun ForgotPasswordScreen(navController: NavController, authViewModel: AuthViewMo
             label = { Text("Email")},
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             shape = RoundedCornerShape(12.dp),
-//            colors = TextFieldDefaults.outlinedTextFieldColors(
-//                containerColor = MaterialTheme.colorScheme.tertiary,
-//                unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
-//            )
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
+            ),
         )
         Spacer(modifier = Modifier.height(24.dp))
 
