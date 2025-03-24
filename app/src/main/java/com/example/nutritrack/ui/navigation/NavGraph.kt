@@ -24,6 +24,10 @@ import com.example.nutritrack.ui.auth.SignUpScreen
 import com.example.nutritrack.ui.screen.dashboard.DashboardScreen
 import com.example.nutritrack.ui.screen.eats.EatsScreen
 import com.example.nutritrack.ui.screen.leaderboard.LeaderboardScreen
+import com.example.nutritrack.ui.screen.onboarding.OnboardingStep1
+import com.example.nutritrack.ui.screen.onboarding.OnboardingStep2
+import com.example.nutritrack.ui.screen.onboarding.OnboardingStep3
+import com.example.nutritrack.ui.screen.onboarding.OnboardingStep4
 import com.example.nutritrack.ui.screen.profile.ProfileScreen
 
 @Composable
@@ -35,6 +39,9 @@ fun RootNavGraph(authViewModel: AuthViewModel) {
     when (authState) {
         is AuthState.Authenticated -> {
             MainScreen(navController, authViewModel)
+        }
+        is AuthState.Onboarding -> {
+            OnboardingNavGraph(navController, authViewModel)
         }
         is AuthState.Unauthenticated, null -> {
             AuthNavGraph(navController, authViewModel)
@@ -50,10 +57,9 @@ fun RootNavGraph(authViewModel: AuthViewModel) {
             authViewModel.resetAuthState()
         }
         is AuthState.Loading -> Unit
-
-
     }
 }
+
 
 
 @Composable
@@ -78,4 +84,15 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier, au
         composable(BottomNavItem.Leaderboard.route) { LeaderboardScreen() }
         composable(BottomNavItem.Profile.route) { ProfileScreen(modifier, navController, authViewModel) }
     }
+}
+
+@Composable
+fun OnboardingNavGraph(navController: NavHostController, authViewModel: AuthViewModel) {
+    NavHost(navController = navController, startDestination = "onboarding1") {
+        composable("onboarding1") { OnboardingStep1(navController) }
+        composable("onboarding2") { OnboardingStep2(navController) }
+        composable("onboarding3") { OnboardingStep3(navController) }
+        composable("onboarding4") { OnboardingStep4(navController, authViewModel) }
+    }
+
 }
