@@ -88,4 +88,9 @@ dependencies {
 
     // Places SDK for Android KTX Library
     implementation ("com.google.maps.android:places-ktx:3.1.1")
+
+    // Retrofit Gson
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.google.code.gson:gson:2.8.8")
 }
