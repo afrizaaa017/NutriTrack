@@ -53,6 +53,8 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     // firebase auth
     implementation(libs.firebase.auth)
+    //
+    implementation(libs.volley)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -65,6 +67,11 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.4")
     // material3
     implementation("androidx.compose.material3:material3:1.2.0")
+
+    // retrofit gson
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.google.code.gson:gson:2.8.8")
 
 
 }
