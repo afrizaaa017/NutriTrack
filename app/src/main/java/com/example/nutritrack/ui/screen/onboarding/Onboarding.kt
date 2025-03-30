@@ -308,7 +308,7 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
                 Spacer(modifier = Modifier.height(48.dp))
 
                 Column {
-                    listOf("Sedentary", "Lightly Active", "Moderately Active", "Highly Active").forEach { level ->
+                    listOf("Sedentary active", "Lightly active", "Moderately active", "Highly active", "Extremely active").forEach { level ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(selected = selectedActivity == level, onClick = { selectedActivity = level })
                             Text(level, modifier = Modifier.padding(start = 8.dp))
@@ -367,7 +367,7 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
                 Spacer(modifier = Modifier.height(48.dp))
 
                 Column {
-                    listOf("Gain a lot", "Gain a little", "Lose a lot", "Lose a little", "Maintain").forEach { goal ->
+                    listOf("Lose a little weight", "Lose a lot of weight", "Maintain weight", "Gain a little weight", "Gain a lot of weight").forEach { goal ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(selected = selectedGoal == goal, onClick = { selectedGoal = goal })
                             Text(goal, modifier = Modifier.padding(start = 8.dp))
@@ -405,7 +405,16 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
                             isButtonPressed = true
                             if (selectedGoal.isNotEmpty()) {
                                 isButtonPressed = false
-                                authViewModel.completeOnboarding()
+                                authViewModel.completeOnboarding(
+                                    firstName = firstName,
+                                    lastName = lastName,
+                                    birthDate = birthDate,
+                                    selectedGender = selectedGender,
+                                    height = height,
+                                    weight = weight,
+                                    selectedActivity = selectedActivity,
+                                    selectedGoal = selectedGoal
+                                )
                             }
                         },
                         modifier = Modifier
