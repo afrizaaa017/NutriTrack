@@ -1,5 +1,6 @@
 package com.example.nutritrack.ui.navigation
 
+import OnboardingScreen
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,6 +41,9 @@ fun RootNavGraph(authViewModel: AuthViewModel) {
         is AuthState.Authenticated -> {
             MainScreen(navController, authViewModel)
         }
+        is AuthState.Onboarding -> {
+            OnboardingScreen(navController, authViewModel)
+        }
         is AuthState.Unauthenticated, null -> {
             AuthNavGraph(navController, authViewModel)
         }
@@ -54,10 +58,9 @@ fun RootNavGraph(authViewModel: AuthViewModel) {
             authViewModel.resetAuthState()
         }
         is AuthState.Loading -> Unit
-
-
     }
 }
+
 
 
 @Composable
@@ -91,3 +94,4 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier, au
         }
     }
 }
+

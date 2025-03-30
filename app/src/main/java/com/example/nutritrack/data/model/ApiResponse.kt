@@ -8,3 +8,17 @@ data class FoodResponse(
     val totalPages: Int,
     @SerializedName("foods") val foods: List<Food>
 )
+
+data class SignUpResponse(
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("message") val message: String
+)
+
+data class SignInResponse(
+    @SerializedName("token") val token: String,
+    @SerializedName("message") val message: String
+)
+
+data class SignOutResponse(
+    @SerializedName("message") val message: String
+)

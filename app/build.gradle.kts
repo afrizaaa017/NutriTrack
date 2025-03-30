@@ -1,4 +1,5 @@
 import java.util.Properties
+import java.io.FileInputStream
 
 plugins {
     alias(libs.plugins.android.application)
@@ -61,6 +62,8 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     // firebase auth
     implementation(libs.firebase.auth)
+    //
+    implementation(libs.volley)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

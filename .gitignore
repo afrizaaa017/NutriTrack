@@ -14,3 +14,6 @@
 .cxx
 local.properties
 secret.properties
+.firebaserc
+firebase.json
+functions
