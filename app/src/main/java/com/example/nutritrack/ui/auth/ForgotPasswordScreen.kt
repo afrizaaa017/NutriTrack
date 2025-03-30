@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgotPasswordScreen(navController: NavController, authViewModel: AuthViewModel) {
     var email by remember { mutableStateOf("") }
@@ -43,10 +43,10 @@ fun ForgotPasswordScreen(navController: NavController, authViewModel: AuthViewMo
             label = { Text("Email")},
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             shape = RoundedCornerShape(12.dp),
-//            colors = TextFieldDefaults.outlinedTextFieldColors(
-//                containerColor = MaterialTheme.colorScheme.tertiary,
-//                unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
-//            )
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
+            )
         )
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -70,4 +70,3 @@ fun ForgotPasswordScreen(navController: NavController, authViewModel: AuthViewMo
         }
     }
 }
-
