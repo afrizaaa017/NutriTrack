@@ -50,11 +50,11 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import com.google.firebase.auth.FirebaseAuth
-import android.health.connect.datatypes.MealType
-import androidx.navigation.NavBackStackEntry
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 
@@ -98,6 +98,8 @@ fun FoodList(
     ) {
     var selectedFood by remember { mutableStateOf<Food?>(null) }
     var showDialog by remember { mutableStateOf(false) }
+    var showPortionDialog by remember { mutableStateOf(false) }
+    var portion by remember { mutableIntStateOf(1) }
     var selectedNutrients by remember { mutableStateOf<Map<String, Float>>(emptyMap()) }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -110,7 +112,9 @@ fun FoodList(
         "Sodium, Na" to "Sodium",
         "Total lipid (fat)" to "Fat",
         "Protein" to "Protein",
-        "Total Sugars" to "Total Sugars"
+        "Total Sugars" to "Total Sugars",
+        "Carbohydrate, by difference" to  "Carbohydrate"
+
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -157,40 +161,44 @@ fun FoodList(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // Row untuk mengatur posisi teks dan button
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            Column{
                             Text(
-                                text = "Add to consumption",
+                                text = "Portion: $portion",
                                 fontWeight = FontWeight.Medium,
-                                style = MaterialTheme.typography.body2
+                                style = MaterialTheme.typography.body2,
                             )
+                            Text(
+                                text = "Edit Portion Size",
+                                fontWeight = FontWeight.Light,
+                                style = MaterialTheme.typography.body2,
+                                color = Color.Blue,
+                                modifier = Modifier.clickable { showPortionDialog = true }
+                            )}
 
-
-
-                            // Konversi daftar foodNutrients menjadi map
                             val nutrients = food.foodNutrients
                                 .filter { it.nutrientName in nutrientMap.keys }
                                 .associate { nutrientMap[it.nutrientName]!! to (it.value?.toFloat() ?: 0f) }
 
-
                             Button(
                                 onClick = {
-                                    selectedNutrients = nutrients // Simpan data makanan yang dipilih
+                                    selectedNutrients = nutrients
                                     showDialog = true
                                     coroutineScope.launch {
                                         val consumeData = Consume(
-                                            email = email.toString(),
-                                            foodId = 1,
+                                            email = email,
+                                            foodId = food.fdcId,
+                                            foodName = food.description,
                                             mealTime = mealType,
-                                            portion = 1,
+                                            portion = portion,
                                             totalSugar = nutrients["Total Sugars"] ?: 0f,
                                             totalCalories = nutrients["Energy"] ?: 0f,
                                             totalFat = nutrients["Fat"] ?: 0f,
-                                            totalCarbs = 1f,
+                                            totalCarbs = nutrients["Carbohydrate"] ?: 0f,
                                             totalProtein = nutrients["Protein"] ?: 0f
                                         )
 
@@ -240,80 +248,43 @@ fun FoodList(
         }
     }
 
-    if (showDialog) {
+    selectedFood?.let { food ->
+        FoodDetailDialog(food = food, onDismiss = { selectedFood = null })
+    }
+
+    if (showPortionDialog) {
         AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text("Konfirmasi") },
-            text = { Text("Apakah kamu yakin ingin menambahkan makanan ini?") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showDialog = false
-                        coroutineScope.launch {
-                            val consumeData = Consume(
-                                email = email,
-                                foodId = 1,
-                                mealTime = mealType,
-                                portion = 1,
-                                totalSugar = selectedNutrients["Total Sugars"] ?: 0f,
-                                totalCalories = selectedNutrients["Energy"] ?: 0f,
-                                totalFat = selectedNutrients["Fat"] ?: 0f,
-                                totalCarbs = 1f,
-                                totalProtein = selectedNutrients["Protein"] ?: 0f
-                            )
-
-                            RetrofitClient.instance.createConsume(consumeData)
-                                .enqueue(object : Callback<Consume> {
-                                    override fun onResponse(
-                                        call: Call<Consume>,
-                                        response: Response<Consume>
-                                    ) {
-                                        if (response.isSuccessful) {
-                                            Toast.makeText(
-                                                context,
-                                                "Data berhasil dikirim!",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        } else {
-                                            Toast.makeText(
-                                                context,
-                                                "Gagal mengirim data: ${
-                                                    response.errorBody()?.string()
-                                                }",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
-                                    }
-
-                                    override fun onFailure(
-                                        call: Call<Consume>,
-                                        t: Throwable
-                                    ) {
-                                        Toast.makeText(
-                                            context,
-                                            "Terjadi kesalahan: ${t.message}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                })
+            onDismissRequest = { showPortionDialog = false },
+            title = { Text("Ubah Porsi") },
+            text = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Pilih jumlah porsi:", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        IconButton(onClick = { if (portion > 1) portion-- }) {
+                            Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Kurangi porsi")
+                        }
+                        Text(text = portion.toString(), fontSize = 18.sp)
+                        IconButton(onClick = { portion++ }) {
+                            Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "Tambah porsi")
                         }
                     }
-                ) {
-                    Text("Ya")
+                }
+            },
+            confirmButton = {
+                Button(onClick = { showPortionDialog = false }) {
+                    Text("OK")
                 }
             },
             dismissButton = {
-                Button(
-                    onClick = { showDialog = false }
-                ) {
+                Button(onClick = { showPortionDialog = false }) {
                     Text("Batal")
                 }
             }
         )
-    }
-
-    selectedFood?.let { food ->
-        FoodDetailDialog(food = food, onDismiss = { selectedFood = null })
     }
 }
 
@@ -339,7 +310,8 @@ fun FoodDetailDialog(food: Food, onDismiss: () -> Unit) {
                     "Sodium, Na" to "Sodium",
                     "Total lipid (fat)" to "Fat",
                     "Protein" to "Protein",
-                    "Total Sugars" to "Total Sugars"
+                    "Total Sugars" to "Total Sugars",
+                    "Carbohydrate, by difference" to "Carbohydrate"
                 )
 
                 food.foodNutrients
