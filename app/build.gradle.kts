@@ -1,4 +1,5 @@
 import java.util.Properties
+import java.io.FileInputStream
 
 plugins {
     alias(libs.plugins.android.application)
@@ -61,6 +62,8 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     // firebase auth
     implementation(libs.firebase.auth)
+    //
+    implementation(libs.volley)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -88,4 +91,10 @@ dependencies {
 
     // Places SDK for Android KTX Library
     implementation ("com.google.maps.android:places-ktx:3.1.1")
+
+    // Retrofit Gson
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.google.code.gson:gson:2.8.8")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 }

@@ -5,6 +5,16 @@ import retrofit2.http.Header
 import retrofit2.http.Query
 import retrofit2.Response
 import com.example.nutritrack.data.model.FoodResponse
+import com.example.nutritrack.data.model.Consume
+import com.example.nutritrack.data.model.SignInResponse
+import com.example.nutritrack.data.model.SignOutResponse
+import com.example.nutritrack.data.model.SignUpResponse
+import com.example.nutritrack.data.model.User
+import retrofit2.Call
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface ApiService {
     @GET("v1/foods/search")
@@ -12,4 +22,19 @@ interface ApiService {
         @Query("query") query: String,
         @Header("X-Api-Key") apiKey: String
     ): Response<FoodResponse>
+}
+
+interface LaravelApiService {
+    @POST("consume")
+    fun createConsume(@Body consume: Consume): Call<Consume>
+
+    @POST("signup")
+    fun signUp(@Body request: User): Call<SignUpResponse>
+
+    @POST("signin")
+    fun signIn(@Body request: User): Call<SignInResponse>
+
+    @DELETE("signout")
+    fun signOut(@Header("Authorization") token: String): Call<SignOutResponse>
+
 }

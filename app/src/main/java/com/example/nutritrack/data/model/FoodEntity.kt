@@ -1,5 +1,7 @@
 package com.example.nutritrack.data.model
 
+import com.google.gson.annotations.SerializedName
+
 data class Food(
     val fdcId: Int,
     val dataType: String,
@@ -29,4 +31,17 @@ data class FoodNutrient(
     val derivationCode: String?,
     val derivationDescription: String,
     val value: Double,
+)
+
+data class Consume(
+    @SerializedName("email") val email: String,
+    @SerializedName("food_id") val foodId: Int,
+    @SerializedName("meal_time") val mealTime: String,
+    @SerializedName("portion") val portion: Int,
+    @SerializedName("total_sugar") val totalSugar: Float,
+    @SerializedName("total_calories") val totalCalories: Float,
+    @SerializedName("total_fat") val totalFat: Float,
+    @SerializedName("total_carbs") val totalCarbs: Float,
+    @SerializedName("total_protein") val totalProtein: Float,
+    @SerializedName("food_name") val foodName: String
 )
