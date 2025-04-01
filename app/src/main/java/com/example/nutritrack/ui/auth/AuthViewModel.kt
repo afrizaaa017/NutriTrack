@@ -75,7 +75,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     }
                 } else {
                     _authState.value = AuthState.Error(task.exception?.message ?: "Something went wrong")
-                    Log.e("AuthProcess", "Firebase authentication failed: ${task.exception?.message}")
+                    Log.e("AuthProcess", "Authentication failed: ${task.exception?.message}")
                 }
             }
     }
@@ -162,7 +162,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     }
                 } else {
                     Log.e("Auth", "Failed to connect to backend. Response Code: ${response.code()}, Error Body: ${response.errorBody()?.string()}")
-                    _authState.value = AuthState.Error("Backend sign-up failed")
+                    _authState.value = AuthState.Error("Authentication failed: ${response.errorBody()?.string()}")
                 }
             }
 

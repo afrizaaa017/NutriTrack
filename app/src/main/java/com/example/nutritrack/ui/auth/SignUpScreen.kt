@@ -180,9 +180,6 @@ fun SignUpScreen(
                 if (isEmailValid && isPasswordValid && isConfirmPasswordValid) {
                     if (authState !is AuthState.Loading) {
                         authViewModel.signUp(email, password)
-                        navController.navigate("signin") {
-                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                        }
                     }
                 }
             },
