@@ -17,6 +17,9 @@ import com.example.nutritrack.data.model.SignUpResponse
 import com.example.nutritrack.data.model.User
 import com.example.nutritrack.data.model.UserProfile
 import com.example.nutritrack.data.model.ResetUpdateResponse
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -38,7 +41,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         checkAuthStatus()
     }
 
-    fun checkAuthStatus() {
+    private fun checkAuthStatus() {
         val user = auth.currentUser
         if (user != null) {
             val isFirstLogin = isFirstLogin(user.uid)
@@ -63,8 +66,11 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     Log.d("AuthProcess", "Firebase authentication successful")
                     user?.let {
                         val isFirstLogin = isFirstLogin(it.uid)
-                        checkAndUpdatePassword(email, password)
-                        sendSignInToBackend(email, password)
+                        CoroutineScope(Dispatchers.Main).launch {
+                            checkAndUpdatePassword(email, password) {
+                                sendSignInToBackend(email, password)
+                            }
+                        }
                         // _authState.value = if (isFirstLogin) AuthState.Onboarding else AuthState.Authenticated
                     }
                 } else {
@@ -74,7 +80,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             }
     }
 
-    fun checkAndUpdatePassword(email: String, newPassword: String) {
+    fun checkAndUpdatePassword(email: String, newPassword: String, onSuccess: () -> Unit) {
         val requestBody = User(email, newPassword)
 
         RetrofitClient.instance.checkAndUpdatePassword(requestBody).enqueue(object : Callback<ResetUpdateResponse> {
@@ -82,6 +88,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 if (response.isSuccessful) {
                     val message = response.body()?.message ?: "Unknown response"
                     Log.d("PasswordUpdate", message)
+                    onSuccess()
                 } else {
                     Log.e("PasswordUpdate", "Failed to check/update password")
                 }
@@ -137,9 +144,55 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        _authState.value = AuthState.Loading
-        Log.d("Auth", "Starting sign-up process with email: $email")
+        val user = User(email, password)
 
+        RetrofitClient.instance.signUp(user).enqueue(object : Callback<SignUpResponse> {
+            override fun onResponse(call: Call<SignUpResponse>, response: Response<SignUpResponse>) {
+                Log.d("Auth", "Backend response received: Code=${response.code()}, Body=${response.body()}")
+
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    if (responseBody != null && responseBody.success) {
+                        Log.d("Auth", "Backend sign-up successful, proceeding to Firebase sign-up")
+                        registerUserInFirebase(email, password)
+                    } else {
+                        val errorMsg = responseBody?.message ?: "Unknown error from backend"
+                        Log.e("Auth", "Backend sign-up failed: $errorMsg")
+                        _authState.value = AuthState.Error(errorMsg)
+                    }
+                } else {
+                    Log.e("Auth", "Failed to connect to backend. Response Code: ${response.code()}, Error Body: ${response.errorBody()?.string()}")
+                    _authState.value = AuthState.Error("Backend sign-up failed")
+                }
+            }
+
+            override fun onFailure(call: Call<SignUpResponse>, t: Throwable) {
+                Log.e("Auth", "Network error during backend sign-up: ${t.message}", t)
+                _authState.value = AuthState.Error(t.message ?: "Network error")
+            }
+        })
+
+//        _authState.value = AuthState.Loading
+//        Log.d("Auth", "Starting backend sign-up process with email: $email")
+//
+//        auth.createUserWithEmailAndPassword(email, password)
+//            .addOnCompleteListener { task ->
+//                if (task.isSuccessful) {
+//                    val user = auth.currentUser
+//                    user?.let {
+//                        Log.d("Auth", "Firebase sign-up successful: UID=${it.uid}")
+//                        setFirstLogin(it.uid)
+//                        sendUserToBackend(it.email ?: "", password)
+//                    } ?: Log.e("Auth", "Firebase user is null after sign-up")
+//                } else {
+//                    val errorMessage = task.exception?.message ?: "Unknown Firebase error"
+//                    Log.e("Auth", "Firebase sign-up failed: $errorMessage", task.exception)
+//                    _authState.value = AuthState.Error(errorMessage)
+//                }
+//            }
+    }
+
+    private fun registerUserInFirebase(email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -147,7 +200,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     user?.let {
                         Log.d("Auth", "Firebase sign-up successful: UID=${it.uid}")
                         setFirstLogin(it.uid)
-                        sendUserToBackend(it.email ?: "", password)
+                        _authState.value = AuthState.SignUp
                     } ?: Log.e("Auth", "Firebase user is null after sign-up")
                 } else {
                     val errorMessage = task.exception?.message ?: "Unknown Firebase error"
@@ -157,36 +210,36 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             }
     }
 
-    private fun sendUserToBackend(email: String, password: String) {
-        val user = User(email, password)
-        Log.d("Auth", "Sending user data to backend: $user")
-
-        RetrofitClient.instance.signUp(user).enqueue(object : Callback<SignUpResponse> {
-            override fun onResponse(call: Call<SignUpResponse>, response: Response<SignUpResponse>) {
-                Log.d("Auth", "Backend response received: Code=${response.code()}, Body=${response.body()}")
-
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    if (responseBody != null && responseBody.success) {
-                        Log.d("Auth", "Backend sign-up successful")
-                        _authState.value = AuthState.SignUp
-                    } else {
-                        val errorMsg = responseBody?.message ?: "Unknown error from backend"
-                        Log.e("Auth", "Backend sign-up failed: $errorMsg")
-                        _authState.value = AuthState.Error(errorMsg)
-                    }
-                } else {
-                    Log.e("Auth", "Failed to connect to backend. Response Code: ${response.code()}, Error Body: ${response.errorBody()?.string()}")
-                    _authState.value = AuthState.Error("Failed to connect to backend")
-                }
-            }
-
-            override fun onFailure(call: Call<SignUpResponse>, t: Throwable) {
-                Log.e("Auth", "Network error during backend sign-up: ${t.message}", t)
-                _authState.value = AuthState.Error(t.message ?: "Network error")
-            }
-        })
-    }
+//    private fun sendUserToBackend(email: String, password: String) {
+//        val user = User(email, password)
+//        Log.d("Auth", "Sending user data to backend: $user")
+//
+//        RetrofitClient.instance.signUp(user).enqueue(object : Callback<SignUpResponse> {
+//            override fun onResponse(call: Call<SignUpResponse>, response: Response<SignUpResponse>) {
+//                Log.d("Auth", "Backend response received: Code=${response.code()}, Body=${response.body()}")
+//
+//                if (response.isSuccessful) {
+//                    val responseBody = response.body()
+//                    if (responseBody != null && responseBody.success) {
+//                        Log.d("Auth", "Backend sign-up successful")
+//                        _authState.value = AuthState.SignUp
+//                    } else {
+//                        val errorMsg = responseBody?.message ?: "Unknown error from backend"
+//                        Log.e("Auth", "Backend sign-up failed: $errorMsg")
+//                        _authState.value = AuthState.Error(errorMsg)
+//                    }
+//                } else {
+//                    Log.e("Auth", "Failed to connect to backend. Response Code: ${response.code()}, Error Body: ${response.errorBody()?.string()}")
+//                    _authState.value = AuthState.Error("Failed to connect to backend")
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<SignUpResponse>, t: Throwable) {
+//                Log.e("Auth", "Network error during backend sign-up: ${t.message}", t)
+//                _authState.value = AuthState.Error(t.message ?: "Network error")
+//            }
+//        })
+//    }
 
     fun signOut() {
         val token = sharedPref.getString("auth_token", "") ?: ""
