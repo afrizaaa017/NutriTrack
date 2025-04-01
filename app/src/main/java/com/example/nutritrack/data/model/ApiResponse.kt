@@ -22,3 +22,7 @@ data class SignInResponse(
 data class SignOutResponse(
     @SerializedName("message") val message: String
 )
+
+data class FoodRecommendationsResponse(
+    val recommendations: Map<String, List<RecommendedFood>>
+)
