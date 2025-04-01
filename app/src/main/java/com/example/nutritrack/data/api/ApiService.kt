@@ -9,6 +9,7 @@ import com.example.nutritrack.data.model.Consume
 import com.example.nutritrack.data.model.SignInResponse
 import com.example.nutritrack.data.model.SignOutResponse
 import com.example.nutritrack.data.model.SignUpResponse
+import com.example.nutritrack.data.model.FoodRecommendationsResponse
 import com.example.nutritrack.data.model.User
 import retrofit2.Call
 import retrofit2.http.Body
@@ -25,6 +26,11 @@ interface ApiService {
 }
 
 interface LaravelApiService {
+    @GET("user/recommendations")
+    fun getFoodRecommendations(
+        @Header("Authorization") token: String
+    ): Call<FoodRecommendationsResponse>
+
     @POST("consume")
     fun createConsume(@Body consume: Consume): Call<Consume>
 
