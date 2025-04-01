@@ -33,3 +33,7 @@ data class OnboardingResponse(
     @SerializedName("data")
     val data: UserProfile? = null
 )
+
+data class FoodRecommendationsResponse(
+    val recommendations: Map<String, List<RecommendedFood>>
+)

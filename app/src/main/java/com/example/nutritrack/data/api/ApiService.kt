@@ -10,6 +10,7 @@ import com.example.nutritrack.data.model.OnboardingResponse
 import com.example.nutritrack.data.model.SignInResponse
 import com.example.nutritrack.data.model.SignOutResponse
 import com.example.nutritrack.data.model.SignUpResponse
+import com.example.nutritrack.data.model.FoodRecommendationsResponse
 import com.example.nutritrack.data.model.User
 import com.example.nutritrack.data.model.UserProfile
 import com.example.nutritrack.data.model.ResetUpdateResponse
@@ -28,6 +29,11 @@ interface ApiService {
 }
 
 interface LaravelApiService {
+    @GET("user/recommendations")
+    fun getFoodRecommendations(
+        @Header("Authorization") token: String
+    ): Call<FoodRecommendationsResponse>
+
     @POST("consume")
     fun createConsume(@Body consume: Consume): Call<Consume>
 

@@ -319,6 +319,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
 
 
+    fun getToken(): String? {
+        return sharedPref.getString("auth_token", null)
+    }
+
     private fun isFirstLogin(uid: String): Boolean {
         return sharedPref.getBoolean("onboarding_$uid", true)
     }

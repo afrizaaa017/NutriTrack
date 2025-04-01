@@ -45,3 +45,14 @@ data class Consume(
     @SerializedName("total_protein") val totalProtein: Float,
     @SerializedName("food_name") val foodName: String
 )
+
+data class RecommendedFood(
+    @SerializedName("food_id") val foodId: Int,
+    @SerializedName("food_name") val foodName: String,
+    @SerializedName("portion") val portion: Int,
+    @SerializedName("total_sugar") val totalSugar: Float,
+    @SerializedName("total_calories") val totalCalories: Float,
+    @SerializedName("total_fat") val totalFat: Float,
+    @SerializedName("total_carbs") val totalCarbs: Float,
+    @SerializedName("total_protein") val totalProtein: Float
+)

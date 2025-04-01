@@ -146,5 +146,3 @@ fun ForgotPasswordScreen(navController: NavController, authViewModel: AuthViewMo
     }
 }
 
-
-
