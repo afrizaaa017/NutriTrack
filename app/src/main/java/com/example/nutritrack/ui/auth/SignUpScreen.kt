@@ -44,7 +44,7 @@ fun SignUpScreen(
     var isConfirmPasswordFocused by remember { mutableStateOf(false) }
 
     val isEmailValid = email.isNotEmpty()
-    val isPasswordValid = password.length >= 8
+    val isPasswordValid = password.length >= 6
     val isConfirmPasswordValid = confirmPassword == password && confirmPassword.isNotEmpty()
 
     LaunchedEffect(currentAuthState) {
@@ -132,7 +132,7 @@ fun SignUpScreen(
 
         if (isPasswordFocused && !isPasswordValid) {
             Text(
-                text = "Password must be at least 8 characters",
+                text = "Password must be at least 6 characters",
                 color = Color.Red,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(start = 8.dp, top = 4.dp)

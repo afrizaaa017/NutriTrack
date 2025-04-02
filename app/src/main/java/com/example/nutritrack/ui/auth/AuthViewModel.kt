@@ -17,6 +17,7 @@ import com.example.nutritrack.data.model.SignUpResponse
 import com.example.nutritrack.data.model.User
 import com.example.nutritrack.data.model.UserProfile
 import com.example.nutritrack.data.model.ResetUpdateResponse
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -65,13 +66,18 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     val user = auth.currentUser
                     Log.d("AuthProcess", "Firebase authentication successful")
                     user?.let {
-                        val isFirstLogin = isFirstLogin(it.uid)
-                        CoroutineScope(Dispatchers.Main).launch {
-                            checkAndUpdatePassword(email, password) {
-                                sendSignInToBackend(email, password, context)
+                        if (!it.isEmailVerified) {
+                            _authState.value = AuthState.Error("Please verify your email before logging in")
+                            sendEmailVerification(it, context)
+                        } else {
+                            val isFirstLogin = isFirstLogin(it.uid)
+                            CoroutineScope(Dispatchers.Main).launch {
+                                checkAndUpdatePassword(email, password) {
+                                    sendSignInToBackend(email, password, context)
+                                }
                             }
+                            // _authState.value = if (isFirstLogin) AuthState.Onboarding else AuthState.Authenticated
                         }
-                        // _authState.value = if (isFirstLogin) AuthState.Onboarding else AuthState.Authenticated
                     }
                 } else {
                     _authState.value = AuthState.Error(task.exception?.message ?: "Something went wrong")
@@ -79,6 +85,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
     }
+
 
     fun checkAndUpdatePassword(email: String, newPassword: String, onSuccess: () -> Unit) {
         val requestBody = User(email, newPassword)
@@ -163,7 +170,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     }
                 } else {
                     Log.e("Auth", "Failed to connect to backend. Response Code: ${response.code()}, Error Body: ${response.errorBody()?.string()}")
-                    _authState.value = AuthState.Error("Authentication failed ${response.errorBody()?.string()}")
+                    _authState.value = AuthState.Error("Sign up failed ${response.errorBody()?.string()}")
                 }
             }
 
@@ -200,13 +207,28 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     val user = auth.currentUser
                     user?.let {
                         Log.d("Auth", "Firebase sign-up successful: UID=${it.uid}")
+                        sendEmailVerification(user, context)
                         setFirstLogin(it.uid)
-                        Toast.makeText(context, "Sign up successfully!", Toast.LENGTH_SHORT).show()
+                        // Toast.makeText(context, "Sign up successfully!", Toast.LENGTH_SHORT).show()
                         _authState.value = AuthState.SignUp
                     } ?: Log.e("Auth", "Firebase user is null after sign-up")
                 } else {
                     val errorMessage = task.exception?.message ?: "Unknown Firebase error"
                     Log.e("Auth", "Firebase sign-up failed: $errorMessage", task.exception)
+                    _authState.value = AuthState.Error(errorMessage)
+                }
+            }
+    }
+
+    private fun sendEmailVerification(user: FirebaseUser, context: Context) {
+        user.sendEmailVerification()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("Auth", "Email verification sent to ${user.email}")
+                    Toast.makeText(context, "You need to verify your email. Please check your mailbox!", Toast.LENGTH_LONG).show()
+                } else {
+                    val errorMessage = task.exception?.message ?: "Failed to send verification email"
+                    Log.e("Auth", "Email verification failed: $errorMessage", task.exception)
                     _authState.value = AuthState.Error(errorMessage)
                 }
             }
