@@ -44,8 +44,8 @@ fun SignInScreen(
     LaunchedEffect(currentAuthState) {
         when (currentAuthState) {
             is AuthState.Authenticated -> {
-                Toast.makeText(context.applicationContext, "Sign in successfully", Toast.LENGTH_SHORT).show()
-                delay(1500)
+                // Toast.makeText(context, "Sign in successfully", Toast.LENGTH_SHORT).show()
+                // delay(1500)
                 navController.navigate(BottomNavItem.Dashboard.route) {
                     popUpTo(navController.graph.startDestinationId) { inclusive = true }
                 }
@@ -147,7 +147,7 @@ fun SignInScreen(
                 }
                 if (email.isNotEmpty() && isPasswordValid) {
                     if (authState !is AuthState.Loading) {
-                        authViewModel.signIn(email, password)
+                        authViewModel.signIn(email, password, context)
                     }
                 }
             },

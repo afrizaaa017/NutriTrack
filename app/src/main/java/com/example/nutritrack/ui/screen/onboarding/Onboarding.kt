@@ -444,7 +444,8 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
                                     height = height,
                                     weight = weight,
                                     selectedActivity = selectedActivity,
-                                    selectedGoal = selectedGoal
+                                    selectedGoal = selectedGoal,
+                                    context
                                 )
                             }
                         },

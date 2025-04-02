@@ -51,7 +51,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun signIn(email: String, password: String) {
+    fun signIn(email: String, password: String, context: Context) {
         if (email.isEmpty() || password.isEmpty()) {
             _authState.value = AuthState.Error("Email and password cannot be empty")
             return
@@ -68,7 +68,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                         val isFirstLogin = isFirstLogin(it.uid)
                         CoroutineScope(Dispatchers.Main).launch {
                             checkAndUpdatePassword(email, password) {
-                                sendSignInToBackend(email, password)
+                                sendSignInToBackend(email, password, context)
                             }
                         }
                         // _authState.value = if (isFirstLogin) AuthState.Onboarding else AuthState.Authenticated
@@ -101,7 +101,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    private fun sendSignInToBackend(email: String, password: String) {
+    private fun sendSignInToBackend(email: String, password: String, context: Context) {
         val requestBody = User(email, password)
         Log.d("AuthProcess", "Sending sign-in request to backend")
 
@@ -117,6 +117,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                         val user = auth.currentUser
                         if (user != null) {
                             val isFirstLogin = isFirstLogin(user.uid)
+                            Toast.makeText(context, "Sign in successfully", Toast.LENGTH_SHORT).show()
                             _authState.value = if (isFirstLogin) AuthState.Onboarding else AuthState.Authenticated
                         } else {
                             _authState.value = AuthState.Error("User data is null")
@@ -137,7 +138,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    fun signUp(email: String, password: String) {
+    fun signUp(email: String, password: String, context: Context) {
         if (email.isEmpty() || password.isEmpty()) {
             Log.e("Auth", "Email and password cannot be empty")
             _authState.value = AuthState.Error("Email and password cannot be empty")
@@ -154,7 +155,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     val responseBody = response.body()
                     if (responseBody != null && responseBody.success) {
                         Log.d("Auth", "Backend sign-up successful, proceeding to Firebase sign-up")
-                        registerUserInFirebase(email, password)
+                        registerUserInFirebase(email, password, context)
                     } else {
                         val errorMsg = responseBody?.message ?: "Unknown error from backend"
                         Log.e("Auth", "Backend sign-up failed: $errorMsg")
@@ -192,7 +193,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 //            }
     }
 
-    private fun registerUserInFirebase(email: String, password: String) {
+    private fun registerUserInFirebase(email: String, password: String, context: Context) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -200,6 +201,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     user?.let {
                         Log.d("Auth", "Firebase sign-up successful: UID=${it.uid}")
                         setFirstLogin(it.uid)
+                        Toast.makeText(context, "Sign up successfully!", Toast.LENGTH_SHORT).show()
                         _authState.value = AuthState.SignUp
                     } ?: Log.e("Auth", "Firebase user is null after sign-up")
                 } else {
@@ -241,7 +243,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 //        })
 //    }
 
-    fun signOut() {
+    fun signOut(context: Context) {
         val token = sharedPref.getString("auth_token", "") ?: ""
         Log.d("SignOut", "Retrieved token: $token")
 
@@ -262,6 +264,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 if (response.isSuccessful) {
                     Log.d("SignOut", "Backend sign-out successful, signing out from Firebase")
                     auth.signOut()
+                    Toast.makeText(context, "Sign out successfully", Toast.LENGTH_SHORT).show()
                     _authState.value = AuthState.Unauthenticated
                 } else {
                     Log.e("SignOut", "Backend sign-out failed with code: ${response.code()}")
@@ -302,7 +305,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         height: String,
         weight: String,
         selectedActivity: String,
-        selectedGoal: String
+        selectedGoal: String,
+        context: Context
     ) {
         val user = auth.currentUser
         user?.let {
@@ -356,6 +360,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     override fun onResponse(call: Call<OnboardingResponse>, response: Response<OnboardingResponse>) {
                         if (response.isSuccessful) {
                             sharedPref.edit().putBoolean("onboarding_${user.uid}", false).apply()
+                            Toast.makeText(context, "You're all set! Your journey starts now. Enjoy exploring our app!", Toast.LENGTH_SHORT).show()
                             _authState.value = AuthState.Authenticated
                         } else {
                             val errorMessage = response.errorBody()?.string() ?: "Unknown error"
