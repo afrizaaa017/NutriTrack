@@ -162,7 +162,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     }
                 } else {
                     Log.e("Auth", "Failed to connect to backend. Response Code: ${response.code()}, Error Body: ${response.errorBody()?.string()}")
-                    _authState.value = AuthState.Error("Authentication failed: ${response.errorBody()?.string()}")
+                    _authState.value = AuthState.Error("Authentication failed ${response.errorBody()?.string()}")
                 }
             }
 
@@ -359,7 +359,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                             _authState.value = AuthState.Authenticated
                         } else {
                             val errorMessage = response.errorBody()?.string() ?: "Unknown error"
-                            _authState.value = AuthState.Error("Failed to save onboarding data: $errorMessage")
+                            _authState.value = AuthState.Error("Failed to save onboarding data $errorMessage")
                         }
                     }
 

@@ -88,6 +88,37 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
     ) {
         when (currentStep) {
             1 -> {
+                Text("Let us know you!", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = "Fill in your details to personalize your experience!", fontSize = 16.sp)
+                Spacer(modifier = Modifier.height(48.dp))
+
+
+                Button(
+                    onClick = {
+                        isButtonPressed = true
+                        isButtonPressed = false
+                        currentStep = 2
+                    },
+                    modifier = Modifier
+                        .width(280.dp)
+                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        disabledContainerColor = BrokenWhite
+                    ),
+                    shape = RoundedCornerShape(24.dp),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 6.dp,
+                        pressedElevation = 12.dp,
+                        disabledElevation = 2.dp
+                    )
+                ) {
+                    Text("Let’s Begin!")
+                }
+            }
+
+            2 -> {
                 Text("Step 1: Personal Information", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.height(48.dp))
 
@@ -190,7 +221,7 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
                         isButtonPressed = true
                         if (firstName.isNotEmpty() && lastName.isNotEmpty() && birthDate.isNotEmpty()) {
                             isButtonPressed = false
-                            currentStep = 2
+                            currentStep = 3
                         }
                     },
                     modifier = Modifier
@@ -211,7 +242,7 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
                 }
             }
 
-            2 -> {
+            3 -> {
                 Text("Step 2: Body Measurements", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.height(48.dp))
             Row (
@@ -260,7 +291,7 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Button(
-                        onClick = { currentStep = 1 },
+                        onClick = { currentStep = 2 },
                         modifier = Modifier
                             .weight(1f)
                             .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
@@ -282,7 +313,7 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
                             isButtonPressed = true
                             if (height.isNotEmpty() && weight.isNotEmpty()) {
                                 isButtonPressed = false
-                                currentStep = 3
+                                currentStep = 4
                             }
                         },
                         modifier = Modifier
@@ -303,7 +334,7 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
                     }
                 }
             }
-            3 -> {
+            4 -> {
                 Text("Step 3: Activity Level", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.height(48.dp))
 
@@ -322,7 +353,7 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ){
-                    Button(onClick = { currentStep = 2 },
+                    Button(onClick = { currentStep = 3 },
                         modifier = Modifier
                             .weight(1f)
                             .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
@@ -342,7 +373,7 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
                         isButtonPressed = true
                         if (selectedActivity.isNotEmpty()) {
                             isButtonPressed = false
-                            currentStep = 4
+                            currentStep = 5
                         } },
                         modifier = Modifier
                             .weight(1f)
@@ -362,7 +393,7 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
                 }
             }
 
-            4 -> {
+            5 -> {
                 Text("Step 4: Choose Your Goal", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.height(48.dp))
 
@@ -382,7 +413,7 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Button(
-                        onClick = { currentStep = 3 },
+                        onClick = { currentStep = 4 },
                         modifier = Modifier
                             .weight(1f)
                             .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
@@ -431,7 +462,7 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
                             disabledElevation = 2.dp
                         )
                     ) {
-                        Text("Next")
+                        Text("Finish!")
                     }
                 }
             }
