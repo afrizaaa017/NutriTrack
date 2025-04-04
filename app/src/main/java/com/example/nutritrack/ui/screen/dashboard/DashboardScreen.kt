@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,6 +27,8 @@ import com.example.nutritrack.data.model.Consume
 import com.example.nutritrack.data.api.RetrofitClient
 import com.example.nutritrack.ui.theme.BrokenWhite
 import com.example.nutritrack.ui.theme.GreenPrimary
+import com.example.nutritrack.ui.theme.PurpleGrey40
+import com.example.nutritrack.ui.theme.fontFamily
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Callback
@@ -49,12 +52,13 @@ fun DashboardScreen(authViewModel: AuthViewModel, foodRecommendationViewModel: D
     ) {
         item {
             Text(
+                fontFamily = fontFamily,
                 text = "Food recommendations for you",
-                style = MaterialTheme.typography.h4,
+                style = MaterialTheme.typography.h5,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Left
             )
         }
 
@@ -106,6 +110,17 @@ fun DashboardScreen(authViewModel: AuthViewModel, foodRecommendationViewModel: D
                         }
                     }
                 }
+                if (mealTime != mealOrder.last()) {
+                    item {
+                        Divider(
+                            color = PurpleGrey40,
+                            thickness = 1.dp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                        )
+                    }
+                }
             }
         }
     }
@@ -114,6 +129,7 @@ fun DashboardScreen(authViewModel: AuthViewModel, foodRecommendationViewModel: D
 @Composable
 fun MealHeader(mealTime: String) {
     Text(
+        fontFamily = fontFamily,
         text = mealTime.replaceFirstChar { it.uppercase() },
         style = MaterialTheme.typography.h5,
         modifier = Modifier
@@ -129,21 +145,22 @@ fun FoodItem(food: RecommendedFood, onAddClick: (RecommendedFood) -> Unit) {
 
     Card(
         modifier = Modifier
-            .width(200.dp)
+            .width(250.dp)
             .padding(8.dp),
-        elevation = 4.dp
+        elevation = 4.dp,
+        shape = RoundedCornerShape(16.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = food.foodName, style = MaterialTheme.typography.h6, fontWeight = FontWeight.Bold)
-            Text(text = "Porsi: ${food.portion}g")
-            Text(text = "Kalori: ${food.totalCalories}")
-            Text(text = "Karbohidrat: ${food.totalCarbs}g")
-            Text(text = "Protein: ${food.totalProtein}g")
-            Text(text = "Lemak: ${food.totalFat}g")
-            Text(text = "Gula: ${food.totalSugar}g")
+            Text(fontFamily = fontFamily, text = food.foodName, style = MaterialTheme.typography.h6, fontWeight = FontWeight.Bold)
+            Text(fontFamily = fontFamily, text = "Porsi: ${food.portion}g")
+            Text(fontFamily = fontFamily, text = "Kalori: ${food.totalCalories}")
+            Text(fontFamily = fontFamily, text = "Karbohidrat: ${food.totalCarbs}g")
+            Text(fontFamily = fontFamily, text = "Protein: ${food.totalProtein}g")
+            Text(fontFamily = fontFamily, text = "Lemak: ${food.totalFat}g")
+            Text(fontFamily = fontFamily, text = "Gula: ${food.totalSugar}g")
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -153,9 +170,10 @@ fun FoodItem(food: RecommendedFood, onAddClick: (RecommendedFood) -> Unit) {
                         onAddClick(food)
                     }
                 },
-                colors = ButtonDefaults.buttonColors(backgroundColor = GreenPrimary)
+                colors = ButtonDefaults.buttonColors(backgroundColor = GreenPrimary),
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Add Food", color = BrokenWhite)
+                Text(fontFamily = fontFamily, text = "Add Food", color = BrokenWhite)
             }
         }
     }
