@@ -50,6 +50,8 @@ android {
 }
 
 dependencies {
+    // google font
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.7.8")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
