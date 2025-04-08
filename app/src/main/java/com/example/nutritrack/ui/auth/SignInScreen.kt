@@ -39,13 +39,13 @@ fun SignInScreen(
 
     var isPasswordFocused by remember { mutableStateOf(false) }
     var isEmailFocused by remember { mutableStateOf(false) }
-    val isPasswordValid = password.length >= 8
+    val isPasswordValid = password.length >= 6
 
     LaunchedEffect(currentAuthState) {
         when (currentAuthState) {
             is AuthState.Authenticated -> {
-                Toast.makeText(context.applicationContext, "Sign in successfully", Toast.LENGTH_SHORT).show()
-                delay(1500)
+                // Toast.makeText(context, "Sign in successfully", Toast.LENGTH_SHORT).show()
+                // delay(1500)
                 navController.navigate(BottomNavItem.Dashboard.route) {
                     popUpTo(navController.graph.startDestinationId) { inclusive = true }
                 }
@@ -128,7 +128,7 @@ fun SignInScreen(
 
         if (isPasswordFocused && !isPasswordValid) {
             Text(
-                text = "Password must be at least 8 characters",
+                text = "Password must be at least 6 characters",
                 color = Color.Red,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(start = 8.dp, top = 4.dp)
@@ -147,7 +147,7 @@ fun SignInScreen(
                 }
                 if (email.isNotEmpty() && isPasswordValid) {
                     if (authState !is AuthState.Loading) {
-                        authViewModel.signIn(email, password)
+                        authViewModel.signIn(email, password, context)
                     }
                 }
             },

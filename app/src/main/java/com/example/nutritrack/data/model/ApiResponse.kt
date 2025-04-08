@@ -23,6 +23,17 @@ data class SignOutResponse(
     @SerializedName("message") val message: String
 )
 
+data class ResetUpdateResponse(
+    @SerializedName("message") val message: String
+)
+
+data class OnboardingResponse(
+    @SerializedName("message")
+    val message: String,
+    @SerializedName("data")
+    val data: UserProfile? = null
+)
+
 data class FoodRecommendationsResponse(
     val recommendations: Map<String, List<RecommendedFood>>
 )

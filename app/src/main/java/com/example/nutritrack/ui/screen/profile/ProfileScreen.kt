@@ -38,8 +38,8 @@ fun ProfileScreen(
 
     LaunchedEffect(currentAuthState) {
         if (currentAuthState is AuthState.Unauthenticated) {
-            Toast.makeText(context, "Signed out!", Toast.LENGTH_SHORT).show()
-            delay(1500)
+            // Toast.makeText(context, "Signed out!", Toast.LENGTH_SHORT).show()
+            // delay(1500)
             navController.navigate("signin") {
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
             }
@@ -66,7 +66,7 @@ fun ProfileScreen(
             confirmButton = {
                 TextButton(onClick = {
                     showDialog = false
-                    authViewModel.signOut()
+                    authViewModel.signOut(context)
                 }) {
                     Text("Yes")
                 }
