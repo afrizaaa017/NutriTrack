@@ -1,6 +1,5 @@
 package com.example.nutritrack.ui.screen.eats
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,7 +22,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
+//import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.font.FontWeight
 import com.example.nutritrack.data.model.Food
@@ -32,12 +31,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 //import com.android.volley.Response
 import com.example.nutritrack.data.api.RetrofitClient
 import com.example.nutritrack.data.model.Consume
+import androidx.compose.material3.*
 //import androidx.compose.material3.AlertDialog
 //import androidx.compose.material3.Button
 //import androidx.compose.material3.Card
@@ -56,35 +55,67 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-
+import com.example.nutritrack.data.model.RecommendedFood
+import com.example.nutritrack.ui.auth.AuthViewModel
+import com.example.nutritrack.ui.theme.BrokenWhite
+import com.example.nutritrack.ui.theme.fontFamily
 
 @Composable
-fun FoodScreen(navController: NavController, mealType: String) {
+fun FoodScreen(navController: NavController, mealType: String, authViewModel: AuthViewModel) {
+    val context = LocalContext.current
     val repository = FoodRepository()
-    val viewModel: FoodViewModel = viewModel(factory = FoodViewModelFactory(repository))
-    val foods by viewModel.foodState.collectAsState()
+    val foodViewModel: FoodViewModel = viewModel(factory = FoodViewModelFactory(repository))
+    val foods by foodViewModel.foodState.collectAsState()
+    val foodMap by foodViewModel.foodMap.collectAsState()
+    var searchQuery by remember { mutableStateOf("") }
+    val user = FirebaseAuth.getInstance().currentUser
+    val email = user?.email ?: "gagal@gmail.com"
+    val token = authViewModel.getToken()
+
+    LaunchedEffect(token) {
+        token?.let { foodViewModel.getFoodRecommendations(it, context) }
+    }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        var searchQuery by remember { mutableStateOf("") }
-
         OutlinedTextField(
             value = searchQuery,
             onValueChange = {
                 searchQuery = it
-                if (it.isNotBlank()) viewModel.searchFoods(it)
+                if (it.isNotBlank()) foodViewModel.searchFoods(it)
             },
-            label = { Text("Find Meals") },
+            label = {Text(
+                fontFamily = fontFamily,
+                text = "Find Meals") },
             modifier = Modifier.fillMaxWidth(),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
+            colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = GreenPrimary,
                 cursorColor = GreenPrimary,
                 focusedLabelColor = GreenPrimary
             )
         )
-
         Spacer(modifier = Modifier.height(8.dp))
-        if (foods.isEmpty()) {
-            CircularProgressIndicator()
+
+        if (searchQuery.isBlank()) {
+            val recommendedFoods = foodMap[mealType] ?: emptyList()
+
+            if (recommendedFoods.isNotEmpty()) {
+                Text(
+                    fontFamily = fontFamily,
+                    text = "Recommended for ${mealType.replaceFirstChar { it.uppercase() }}",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(recommendedFoods) { food ->
+                        FoodRecommendation(food = food, onAddClick = { selectedFood ->
+                            val consumeData = foodViewModel.mapToConsumeData(email = email, mealType = mealType, portion = 1, recommendedFood = selectedFood)
+                            foodViewModel.sendConsumeData(consumeData = consumeData, context = context)
+                        })
+                    }
+                }
+            } else {
+                CircularProgressIndicator()
+            }
         } else {
             FoodList(mealType, foods)
         }
@@ -114,7 +145,6 @@ fun FoodList(
         "Protein" to "Protein",
         "Total Sugars" to "Total Sugars",
         "Carbohydrate, by difference" to  "Carbohydrate"
-
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -132,33 +162,31 @@ fun FoodList(
                         Text(
                             text = food.description,
                             fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.body1
+                            style = MaterialTheme.typography.bodyLarge
                         )
                         Spacer(modifier = Modifier.height(4.dp))
 
-//                        val nutrientMap = mapOf("Energy" to "Calories")
                         val caloriesText = food.foodNutrients
                             .firstOrNull { it.nutrientName == "Energy" }
                             ?.let { "${it.value} ${it.unitName}" } ?: "N/A"
 
                         Text(
                             text = "$caloriesText, ${food.householdServingFullText ?: "Unknown"} (${food.servingSize ?: "?"} ${food.servingSizeUnit ?: "?"})",
-                            style = MaterialTheme.typography.body2
+                            style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
                             text = "Package Weight: ${food.packageWeight ?: "Unknown"}",
-                            style = MaterialTheme.typography.body2
+                            style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
                             text = "Source: USDA",
                             fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.body2
+                            style = MaterialTheme.typography.bodyMedium
                         )
-
                         Spacer(modifier = Modifier.height(12.dp))
 
                         Row(
@@ -170,12 +198,12 @@ fun FoodList(
                             Text(
                                 text = "Portion: $portion",
                                 fontWeight = FontWeight.Medium,
-                                style = MaterialTheme.typography.body2,
+                                style = MaterialTheme.typography.bodyMedium
                             )
                             Text(
                                 text = "Edit Portion Size",
                                 fontWeight = FontWeight.Light,
-                                style = MaterialTheme.typography.body2,
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Blue,
                                 modifier = Modifier.clickable { showPortionDialog = true }
                             )}
@@ -211,13 +239,13 @@ fun FoodList(
                                                     if (response.isSuccessful) {
                                                         Toast.makeText(
                                                             context,
-                                                            "Data berhasil dikirim!",
+                                                            "Data sent successfully!",
                                                             Toast.LENGTH_SHORT
                                                         ).show()
                                                     } else {
                                                         Toast.makeText(
                                                             context,
-                                                            "Gagal mengirim data: ${
+                                                            "Failed to send data: ${
                                                                 response.errorBody()?.string()
                                                             }",
                                                             Toast.LENGTH_SHORT
@@ -231,7 +259,7 @@ fun FoodList(
                                                 ) {
                                                     Toast.makeText(
                                                         context,
-                                                        "Terjadi kesalahan: ${t.message}",
+                                                        "Error occurred: ${t.message}",
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 }
@@ -249,27 +277,28 @@ fun FoodList(
     }
 
     selectedFood?.let { food ->
-        FoodDetailDialog(food = food, onDismiss = { selectedFood = null })
+        FoodDetailDialog(food = food, nutrientMap = nutrientMap, onDismiss = { selectedFood = null }
+        )
     }
 
     if (showPortionDialog) {
         AlertDialog(
             onDismissRequest = { showPortionDialog = false },
-            title = { Text("Ubah Porsi") },
+            title = { Text("Change Portion") },
             text = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Pilih jumlah porsi:", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                    Text("Select portion size:", fontSize = 16.sp, fontWeight = FontWeight.Medium)
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
                         IconButton(onClick = { if (portion > 1) portion-- }) {
-                            Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Kurangi porsi")
+                            Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Decrease portion")
                         }
                         Text(text = portion.toString(), fontSize = 18.sp)
                         IconButton(onClick = { portion++ }) {
-                            Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "Tambah porsi")
+                            Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "Increase portion")
                         }
                     }
                 }
@@ -281,7 +310,7 @@ fun FoodList(
             },
             dismissButton = {
                 Button(onClick = { showPortionDialog = false }) {
-                    Text("Batal")
+                    Text("Cancel")
                 }
             }
         )
@@ -289,29 +318,20 @@ fun FoodList(
 }
 
 @Composable
-fun FoodDetailDialog(food: Food, onDismiss: () -> Unit) {
+fun FoodDetailDialog(food: Food, nutrientMap: Map<String, String>, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = food.description, fontWeight = FontWeight.Bold) },
         text = {
-            Column(modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState())) {
-                Text(text = "Brand: ${food.brandOwner ?: "Unknown"}")
-                Text(text = "Scientific Name: ${food.scientificName ?: "N/A"}")
-                Text(text = "Food Code: ${food.foodCode}")
-                Text(text = "Publication Date: ${food.publicationDate}")
-                Text(text = "Ingredients: ${food.ingredients ?: "N/A"}")
-                Text(text = "Score: ${food.score}")
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                val nutrientMap = mapOf(
-                    "Energy" to "Energy",
-                    "Fiber, total dietary" to "Fiber",
-                    "Sodium, Na" to "Sodium",
-                    "Total lipid (fat)" to "Fat",
-                    "Protein" to "Protein",
-                    "Total Sugars" to "Total Sugars",
-                    "Carbohydrate, by difference" to "Carbohydrate"
+            Column(modifier = Modifier
+                .fillMaxHeight()
+                .verticalScroll(rememberScrollState())
+                .padding(top = 16.dp)
+            ) {
+                Text(
+                    text = food.description,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(top = 16.dp)
                 )
 
                 food.foodNutrients
@@ -326,12 +346,172 @@ fun FoodDetailDialog(food: Food, onDismiss: () -> Unit) {
             Button(
                 onClick = onDismiss,
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor  = GreenPrimary
+                    containerColor  = GreenPrimary
                 )
             ) {
                 Text("Close", color = Color.White)
             }
-        }
+        },
+        modifier = Modifier.heightIn(max = 430.dp)
+    )
+}
 
+@Composable
+fun FoodRecommendation(food: RecommendedFood, onAddClick: (RecommendedFood) -> Unit) {
+    val coroutineScope = rememberCoroutineScope()
+    var showDetailDialog by remember { mutableStateOf(false) }
+    var showPortionDialog by remember { mutableStateOf(false) }
+    var portion by remember { mutableIntStateOf(1) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp)
+            .clickable { showDetailDialog = true },
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, Color.Gray)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = food.foodName,
+                fontFamily = fontFamily,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "${food.totalCalories} kcal, ${food.portion} g",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Source: USDA",
+                fontFamily = fontFamily,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)){
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "Portion: ${food.portion}",
+                            fontFamily = fontFamily,
+                            fontWeight = FontWeight.Medium,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Text(
+                            text = "Edit Portion Size",
+                            fontFamily = fontFamily,
+                            fontWeight = FontWeight.Light,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Blue,
+                            modifier = Modifier.clickable { showPortionDialog = true }
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                onAddClick(food)
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = GreenPrimary),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(fontFamily = fontFamily, text = "Add Food", color = BrokenWhite)
+                    }
+                }
+            }
+        }
+    }
+    if (showDetailDialog) {
+        RecommendedFoodDetailDialog(food = food, onDismiss = { showDetailDialog = false })
+    }
+
+    if (showPortionDialog) {
+        AlertDialog(
+            onDismissRequest = { showPortionDialog = false },
+            title = { Text("Change Portion") },
+            text = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Select portion size:", fontSize = 16.sp, fontFamily = fontFamily, fontWeight = FontWeight.Medium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        IconButton(onClick = { if (portion > 1) portion-- }) {
+                            Icon(
+                                Icons.Filled.KeyboardArrowDown,
+                                contentDescription = "Decrease portion"
+                            )
+                        }
+                        Text(text = portion.toString(), fontSize = 18.sp)
+                        IconButton(onClick = { portion++ }) {
+                            Icon(
+                                Icons.Filled.KeyboardArrowUp,
+                                contentDescription = "Increase portion"
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = { showPortionDialog = false }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showPortionDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun RecommendedFoodDetailDialog(
+    food: RecommendedFood,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState())
+                    .padding(top = 16.dp)
+            ) {
+                Text(text = food.foodName, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
+
+                Text(fontFamily = fontFamily,text = "Portion: ${food.portion}g", modifier = Modifier.padding(8.dp))
+                Text(fontFamily = fontFamily, text = "Calories: ${food.totalCalories}", modifier = Modifier.padding(8.dp))
+                Text(fontFamily = fontFamily, text = "Carbohydrates: ${food.totalCarbs}g", modifier = Modifier.padding(8.dp))
+                Text(fontFamily = fontFamily, text = "Protein: ${food.totalProtein}g", modifier = Modifier.padding(8.dp))
+                Text(fontFamily = fontFamily, text = "Fat: ${food.totalFat}g", modifier = Modifier.padding(8.dp))
+                Text(fontFamily = fontFamily, text = "Sugar: ${food.totalSugar}g", modifier = Modifier.padding(8.dp))
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(containerColor  = GreenPrimary)
+            ) {
+                Text("Close", color = Color.White)
+            }
+        },
+        modifier = Modifier.heightIn(max = 430.dp)
     )
 }
