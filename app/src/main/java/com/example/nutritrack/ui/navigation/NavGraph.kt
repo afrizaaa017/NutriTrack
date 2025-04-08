@@ -61,8 +61,6 @@ fun RootNavGraph(authViewModel: AuthViewModel) {
     }
 }
 
-
-
 @Composable
 fun AuthNavGraph(navController: NavHostController, authViewModel: AuthViewModel) {
     val modifier = Modifier
@@ -80,7 +78,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier, au
         startDestination = BottomNavItem.Dashboard.route,
         modifier = modifier
     ) {
-        composable(BottomNavItem.Dashboard.route) { DashboardScreen(authViewModel) }
+        composable(BottomNavItem.Dashboard.route) { DashboardScreen() }
         composable(BottomNavItem.Eats.route) { EatsScreen(navController) }
         composable(BottomNavItem.Leaderboard.route) { LeaderboardScreen() }
         composable(BottomNavItem.Profile.route) { ProfileScreen(modifier, navController, authViewModel) }
@@ -90,7 +88,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier, au
             arguments = listOf(navArgument("mealType") { type = NavType.StringType })
         ) { backStackEntry ->
             val mealType = backStackEntry.arguments?.getString("mealType") ?: "unknown"
-            FoodScreen(navController, mealType)
+            FoodScreen(navController, mealType, authViewModel)
         }
     }
 }
