@@ -1,5 +1,6 @@
 package com.example.nutritrack.ui.navigation
 
+import OnboardingScreen
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,7 +15,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.*
+import androidx.navigation.navArgument
 import com.example.nutritrack.MainScreen
 import com.example.nutritrack.ui.auth.AuthState
 import com.example.nutritrack.ui.auth.AuthViewModel
@@ -22,9 +25,11 @@ import com.example.nutritrack.ui.auth.ForgotPasswordScreen
 import com.example.nutritrack.ui.auth.SignInScreen
 import com.example.nutritrack.ui.auth.SignUpScreen
 import com.example.nutritrack.ui.screen.dashboard.DashboardScreen
-import com.example.nutritrack.ui.screen.eats.EatsScreen
+import com.example.nutritrack.ui.screen.eats.FoodScreen
 import com.example.nutritrack.ui.screen.leaderboard.LeaderboardScreen
 import com.example.nutritrack.ui.screen.profile.ProfileScreen
+import com.example.nutritrack.ui.screen.eats.EatsScreen
+import com.example.nutritrack.ui.screen.eats.FoodList
 
 @Composable
 fun RootNavGraph(authViewModel: AuthViewModel) {
@@ -35,6 +40,9 @@ fun RootNavGraph(authViewModel: AuthViewModel) {
     when (authState) {
         is AuthState.Authenticated -> {
             MainScreen(navController, authViewModel)
+        }
+        is AuthState.Onboarding -> {
+            OnboardingScreen(navController, authViewModel)
         }
         is AuthState.Unauthenticated, null -> {
             AuthNavGraph(navController, authViewModel)
@@ -50,11 +58,8 @@ fun RootNavGraph(authViewModel: AuthViewModel) {
             authViewModel.resetAuthState()
         }
         is AuthState.Loading -> Unit
-
-
     }
 }
-
 
 @Composable
 fun AuthNavGraph(navController: NavHostController, authViewModel: AuthViewModel) {
@@ -74,8 +79,17 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier, au
         modifier = modifier
     ) {
         composable(BottomNavItem.Dashboard.route) { DashboardScreen() }
-        composable(BottomNavItem.Eats.route) { EatsScreen() }
+        composable(BottomNavItem.Eats.route) { EatsScreen(navController) }
         composable(BottomNavItem.Leaderboard.route) { LeaderboardScreen() }
         composable(BottomNavItem.Profile.route) { ProfileScreen(modifier, navController, authViewModel) }
+
+        composable(
+            "foodscreen/{mealType}",
+            arguments = listOf(navArgument("mealType") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val mealType = backStackEntry.arguments?.getString("mealType") ?: "unknown"
+            FoodScreen(navController, mealType, authViewModel)
+        }
     }
 }
+
