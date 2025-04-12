@@ -176,11 +176,11 @@ fun FoodList(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
 
-                        Text(
-                            text = "Package Weight: ${food.packageWeight ?: "Unknown"}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
+//                        Text(
+//                            text = "Package Weight: ${food.packageWeight ?: "Unknown"}",
+//                            style = MaterialTheme.typography.bodyMedium
+//                        )
+//                        Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
                             text = "Source: USDA",
@@ -198,13 +198,15 @@ fun FoodList(
                             Text(
                                 text = "Portion: $portion",
                                 fontWeight = FontWeight.Medium,
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontSize = 10.sp
                             )
                             Text(
                                 text = "Edit Portion Size",
                                 fontWeight = FontWeight.Light,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Blue,
+                                fontSize = 10.sp,
                                 modifier = Modifier.clickable { showPortionDialog = true }
                             )}
 
