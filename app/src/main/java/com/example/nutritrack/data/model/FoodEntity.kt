@@ -48,3 +48,9 @@ data class RecommendedFood(
     @SerializedName("total_carbs") val totalCarbs: Float,
     @SerializedName("total_protein") val totalProtein: Float
 )
+
+data class SummaryData(
+    @SerializedName("calories_needed") val goals: Int,
+    @SerializedName("total_consumed") val consumed: Int,
+    @SerializedName("total_remaining") val remaining: Int
+)

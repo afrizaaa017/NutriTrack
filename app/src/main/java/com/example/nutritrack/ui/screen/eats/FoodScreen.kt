@@ -19,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nutritrack.data.repository.FoodRepository
 import com.example.nutritrack.viewmodel.FoodViewModel
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -71,12 +72,47 @@ fun FoodScreen(navController: NavController, mealType: String, authViewModel: Au
     val user = FirebaseAuth.getInstance().currentUser
     val email = user?.email ?: "gagal@gmail.com"
     val token = authViewModel.getToken()
+    val summaryData by foodViewModel.summaryData.collectAsState()
+
 
     LaunchedEffect(token) {
-        token?.let { foodViewModel.getFoodRecommendations(it, context) }
+        token?.let {
+            foodViewModel.getFoodRecommendations(it, context)
+            foodViewModel.getDailySummary(email)
+        }
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+                .border(BorderStroke(1.dp, Color.Black)),
+            elevation = CardDefaults.cardElevation(4.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp, horizontal = 18.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = summaryData.goals.toString(), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                        Text(text = "Goals", fontSize = 10.sp)
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = summaryData.remaining.toString(), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                        Text(text = "Remaining", fontSize = 10.sp)
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = summaryData.consumed.toString(), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                        Text(text = "Consume", fontSize = 10.sp)
+                    }
+                }
+            }
+
         OutlinedTextField(
             value = searchQuery,
             onValueChange = {
@@ -156,7 +192,8 @@ fun FoodList(
                         .padding(8.dp)
                         .clickable { selectedFood = food },
                     shape = RoundedCornerShape(8.dp),
-                    border = BorderStroke(1.dp, Color.Gray)
+                    border = BorderStroke(1.dp, Color.Black),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
@@ -371,7 +408,8 @@ fun FoodRecommendation(food: RecommendedFood, onAddClick: (RecommendedFood) -> U
             .padding(horizontal = 12.dp)
             .clickable { showDetailDialog = true },
         shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Color.Gray)
+        border = BorderStroke(1.dp, Color.Black),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(

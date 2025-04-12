@@ -17,6 +17,7 @@ import com.example.nutritrack.data.model.SignUpResponse
 import com.example.nutritrack.data.model.User
 import com.example.nutritrack.data.model.UserProfile
 import com.example.nutritrack.data.model.ResetUpdateResponse
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -152,70 +153,94 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        val user = User(email, password)
+        registerUserInFirebase(email, password) { firebaseUser, error ->
+            if (firebaseUser != null) {
+                Log.d("Auth", "Firebase account created for $email, proceeding to Laravel")
 
-        RetrofitClient.instance.signUp(user).enqueue(object : Callback<SignUpResponse> {
-            override fun onResponse(call: Call<SignUpResponse>, response: Response<SignUpResponse>) {
-                Log.d("Auth", "Backend response received: Code=${response.code()}, Body=${response.body()}")
+                val user = User(email, password)
+                Log.d("Auth", "Sending sign-up request to Laravel for email: $email")
 
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    if (responseBody != null && responseBody.success) {
-                        Log.d("Auth", "Backend sign-up successful, proceeding to Firebase sign-up")
-                        registerUserInFirebase(email, password, context)
-                    } else {
-                        val errorMsg = responseBody?.message ?: "Unknown error from backend"
-                        Log.e("Auth", "Backend sign-up failed: $errorMsg")
-                        _authState.value = AuthState.Error(errorMsg)
+                RetrofitClient.instance.signUp(user).enqueue(object : Callback<SignUpResponse> {
+                    override fun onResponse(call: Call<SignUpResponse>, response: Response<SignUpResponse>) {
+                        Log.d("Auth", "Backend response received: Code=${response.code()}, Body=${response.body()}")
+
+                        if (response.isSuccessful) {
+                            val responseBody = response.body()
+                            if (responseBody != null && responseBody.success) {
+                                Log.d("Auth", "Backend sign-up successful")
+                                sendEmailVerification(firebaseUser, context)
+                                setFirstLogin(firebaseUser.uid)
+                                _authState.value = AuthState.SignUp
+                            } else {
+                                val errorMsg = responseBody?.message ?: "Unknown error from backend"
+                                Log.e("Auth", "Backend sign-up failed: $errorMsg")
+                                Toast.makeText(context, "Failed to sign up. Backend error.", Toast.LENGTH_LONG).show()
+                                firebaseUser.delete().addOnCompleteListener { deleteTask ->
+                                    if (deleteTask.isSuccessful) {
+                                        Log.d("Auth", "Firebase account deleted due to backend failure")
+                                    } else {
+                                        Log.e("Auth", "Failed to delete Firebase account: ${deleteTask.exception?.message}")
+                                    }
+                                }
+                                _authState.value = AuthState.Error(errorMsg)
+                            }
+                        } else {
+                            val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                            Log.e("Auth", "Failed to connect to backend. Response Code: ${response.code()}, Error Body: $errorBody")
+                            Toast.makeText(context, "Failed to sign up. Backend error.", Toast.LENGTH_LONG).show()
+                            firebaseUser.delete().addOnCompleteListener { deleteTask ->
+                                if (deleteTask.isSuccessful) {
+                                    Log.d("Auth", "Firebase account deleted due to backend error")
+                                } else {
+                                    Log.e("Auth", "Failed to delete Firebase account: ${deleteTask.exception?.message}")
+                                }
+                            }
+                            _authState.value = AuthState.Error("Sign up failed: $errorBody")
+                        }
                     }
-                } else {
-                    Log.e("Auth", "Failed to connect to backend. Response Code: ${response.code()}, Error Body: ${response.errorBody()?.string()}")
-                    _authState.value = AuthState.Error("Sign up failed ${response.errorBody()?.string()}")
-                }
-            }
 
-            override fun onFailure(call: Call<SignUpResponse>, t: Throwable) {
-                Log.e("Auth", "Network error during backend sign-up: ${t.message}", t)
-                _authState.value = AuthState.Error(t.message ?: "Network error")
-            }
-        })
+                    override fun onFailure(call: Call<SignUpResponse>, t: Throwable) {
+                        Log.e("Auth", "Network error during backend sign-up: ${t.message}", t)
+                        Toast.makeText(context, "Failed to sign up. Network error.", Toast.LENGTH_LONG).show()
+                        firebaseUser.delete().addOnCompleteListener { deleteTask ->
+                            if (deleteTask.isSuccessful) {
+                                Log.d("Auth", "Firebase account deleted due to network error")
+                            } else {
+                                Log.e("Auth", "Failed to delete Firebase account: ${deleteTask.exception?.message}")
+                            }
+                        }
+                        _authState.value = AuthState.Error(t.message ?: "Network error")
+                    }
+                })
+            } else {
+                Log.e("Auth", "Firebase sign-up failed: $error")
+                Toast.makeText(context, "Failed to sign up.", Toast.LENGTH_LONG).show()
 
-//        _authState.value = AuthState.Loading
-//        Log.d("Auth", "Starting backend sign-up process with email: $email")
-//
-//        auth.createUserWithEmailAndPassword(email, password)
-//            .addOnCompleteListener { task ->
-//                if (task.isSuccessful) {
-//                    val user = auth.currentUser
-//                    user?.let {
-//                        Log.d("Auth", "Firebase sign-up successful: UID=${it.uid}")
-//                        setFirstLogin(it.uid)
-//                        sendUserToBackend(it.email ?: "", password)
-//                    } ?: Log.e("Auth", "Firebase user is null after sign-up")
-//                } else {
-//                    val errorMessage = task.exception?.message ?: "Unknown Firebase error"
-//                    Log.e("Auth", "Firebase sign-up failed: $errorMessage", task.exception)
-//                    _authState.value = AuthState.Error(errorMessage)
-//                }
-//            }
+                _authState.value = AuthState.Error(error ?: "Failed to check email availability")
+            }
+        }
     }
 
-    private fun registerUserInFirebase(email: String, password: String, context: Context) {
+    private fun registerUserInFirebase(email: String, password: String, callback: (FirebaseUser?, String?) -> Unit) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     user?.let {
                         Log.d("Auth", "Firebase sign-up successful: UID=${it.uid}")
-                        sendEmailVerification(user, context)
-                        setFirstLogin(it.uid)
-                        // Toast.makeText(context, "Sign up successfully!", Toast.LENGTH_SHORT).show()
-                        _authState.value = AuthState.SignUp
-                    } ?: Log.e("Auth", "Firebase user is null after sign-up")
+                        callback(user, null)
+                    } ?: run {
+                        Log.e("Auth", "Firebase user is null after sign-up")
+                        callback(null, "Firebase user is null")
+                    }
                 } else {
-                    val errorMessage = task.exception?.message ?: "Unknown Firebase error"
-                    Log.e("Auth", "Firebase sign-up failed: $errorMessage", task.exception)
-                    _authState.value = AuthState.Error(errorMessage)
+                    val exception = task.exception
+                    if (exception is FirebaseAuthUserCollisionException) {
+                        callback(null, "Email already registered")
+                    } else {
+                        val errorMessage = exception?.message ?: "Unknown Firebase error"
+                        callback(null, errorMessage)
+                    }
                 }
             }
     }
@@ -335,8 +360,9 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             val email = user.email ?: ""
 
             val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            val birthday: Date = try {
-                dateFormat.parse(birthDate)!!
+            val isoFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val birthday: String = try {
+                isoFormat.format(dateFormat.parse(birthDate)!!)
             } catch (e: Exception) {
                 _authState.value = AuthState.Error("Invalid date format")
                 return

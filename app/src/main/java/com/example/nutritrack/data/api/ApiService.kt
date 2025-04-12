@@ -14,6 +14,7 @@ import com.example.nutritrack.data.model.FoodRecommendationsResponse
 import com.example.nutritrack.data.model.User
 import com.example.nutritrack.data.model.UserProfile
 import com.example.nutritrack.data.model.ResetUpdateResponse
+import com.example.nutritrack.data.model.SummaryData
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -54,4 +55,8 @@ interface LaravelApiService {
         @Header("Authorization") authToken: String,
         @Body profile: UserProfile
     ): Call<OnboardingResponse>
+
+    @GET("summary")
+    suspend fun getDailySummary(@Query("email") email: String): SummaryData
+
 }

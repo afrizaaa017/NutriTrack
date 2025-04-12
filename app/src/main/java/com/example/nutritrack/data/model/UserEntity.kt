@@ -26,7 +26,7 @@ data class UserProfile(
     val height: Float,
 
     @SerializedName("birthday")
-    val birthday: Date,
+    val birthday: String,
 
     @SerializedName("goal")
     val goal: String,

@@ -3,6 +3,8 @@ package com.example.nutritrack.viewmodel
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nutritrack.data.api.RetrofitClient
@@ -10,6 +12,7 @@ import com.example.nutritrack.data.repository.FoodRepository
 import com.example.nutritrack.data.model.Food
 import com.example.nutritrack.data.model.RecommendedFood
 import com.example.nutritrack.data.model.Consume
+import com.example.nutritrack.data.model.SummaryData
 import com.example.nutritrack.data.repository.FoodRecommendationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +27,9 @@ class FoodViewModel(private val repository: FoodRepository) : ViewModel() {
 
     private val _foodMap = MutableStateFlow<Map<String, List<RecommendedFood>>>(emptyMap())
     val foodMap: StateFlow<Map<String, List<RecommendedFood>>> = _foodMap
+
+    private val _summaryData = MutableStateFlow(SummaryData(0, 0, 0))
+    val summaryData: StateFlow<SummaryData> = _summaryData
 
     fun searchFoods(query: String) {
         viewModelScope.launch {
@@ -83,4 +89,16 @@ class FoodViewModel(private val repository: FoodRepository) : ViewModel() {
                 }
             })
     }
+
+    fun getDailySummary(email: String) {
+        viewModelScope.launch {
+            try {
+                val response = repository.getDailySummary(email) // Panggil API
+                _summaryData.value = response
+            } catch (e: Exception) {
+                Log.e("FoodViewModel", "Error getting summary", e)
+            }
+        }
+    }
+
 }

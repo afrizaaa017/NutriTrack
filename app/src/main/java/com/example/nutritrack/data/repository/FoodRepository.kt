@@ -5,6 +5,8 @@ import retrofit2.Response
 import com.example.nutritrack.data.api.ApiClient
 import com.example.nutritrack.data.model.FoodResponse
 import com.example.nutritrack.BuildConfig
+import com.example.nutritrack.data.api.RetrofitClient
+import com.example.nutritrack.data.model.SummaryData
 
 class FoodRepository  {
     private val apiService = ApiClient.apiService
@@ -14,4 +16,10 @@ class FoodRepository  {
 
         return response
     }
+
+    private val summaryApiService = RetrofitClient.instance
+    suspend fun getDailySummary(email: String): SummaryData {
+        return summaryApiService.getDailySummary(email)
+    }
+
 }
