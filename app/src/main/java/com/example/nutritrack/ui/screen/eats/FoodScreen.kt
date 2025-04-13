@@ -74,7 +74,6 @@ fun FoodScreen(navController: NavController, mealType: String, authViewModel: Au
     val token = authViewModel.getToken()
     val summaryData by foodViewModel.summaryData.collectAsState()
 
-
     LaunchedEffect(token) {
         token?.let {
             foodViewModel.getFoodRecommendations(it, context)
@@ -143,14 +142,23 @@ fun FoodScreen(navController: NavController, mealType: String, authViewModel: Au
                 )
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(recommendedFoods) { food ->
-                        FoodRecommendation(food = food, onAddClick = { selectedFood ->
-                            val consumeData = foodViewModel.mapToConsumeData(email = email, mealType = mealType, portion = 1, recommendedFood = selectedFood)
+                        FoodRecommendation(food = food, onAddClick = { selectedFood, portion ->
+                            val consumeData = foodViewModel.mapToConsumeData(
+                                email = email,
+                                mealType = mealType,
+                                portion = portion,
+                                recommendedFood = selectedFood
+                            )
                             foodViewModel.sendConsumeData(consumeData = consumeData, context = context)
                         })
                     }
                 }
             } else {
-                CircularProgressIndicator()
+                Text(
+                    text = "It looks like we don’t have any recommendations at the moment. We’ll keep looking for the best options for you!",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(16.dp)
+                )
             }
         } else {
             FoodList(mealType, foods)
@@ -212,12 +220,6 @@ fun FoodList(
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(modifier = Modifier.height(4.dp))
-
-//                        Text(
-//                            text = "Package Weight: ${food.packageWeight ?: "Unknown"}",
-//                            style = MaterialTheme.typography.bodyMedium
-//                        )
-//                        Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
                             text = "Source: USDA",
@@ -396,7 +398,7 @@ fun FoodDetailDialog(food: Food, nutrientMap: Map<String, String>, onDismiss: ()
 }
 
 @Composable
-fun FoodRecommendation(food: RecommendedFood, onAddClick: (RecommendedFood) -> Unit) {
+fun FoodRecommendation(food: RecommendedFood, onAddClick: (RecommendedFood, Int) -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     var showDetailDialog by remember { mutableStateOf(false) }
     var showPortionDialog by remember { mutableStateOf(false) }
@@ -422,7 +424,7 @@ fun FoodRecommendation(food: RecommendedFood, onAddClick: (RecommendedFood) -> U
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "${food.totalCalories} kcal, ${food.portion} g",
+                text = "${food.totalCalories} kcal, $portion g",
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -445,7 +447,7 @@ fun FoodRecommendation(food: RecommendedFood, onAddClick: (RecommendedFood) -> U
                 ) {
                     Column {
                         Text(
-                            text = "Portion: ${food.portion}",
+                            text = "Portion: $portion g",
                             fontFamily = fontFamily,
                             fontWeight = FontWeight.Medium,
                             style = MaterialTheme.typography.bodyMedium,
@@ -462,7 +464,7 @@ fun FoodRecommendation(food: RecommendedFood, onAddClick: (RecommendedFood) -> U
                     Button(
                         onClick = {
                             coroutineScope.launch {
-                                onAddClick(food)
+                                onAddClick(food, portion)
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = GreenPrimary),
@@ -536,7 +538,7 @@ fun RecommendedFoodDetailDialog(
             ) {
                 Text(text = food.foodName, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
 
-                Text(fontFamily = fontFamily,text = "Portion: ${food.portion}g", modifier = Modifier.padding(8.dp))
+//                Text(fontFamily = fontFamily,text = "Portion: ${food.portion}g", modifier = Modifier.padding(8.dp))
                 Text(fontFamily = fontFamily, text = "Calories: ${food.totalCalories}", modifier = Modifier.padding(8.dp))
                 Text(fontFamily = fontFamily, text = "Carbohydrates: ${food.totalCarbs}g", modifier = Modifier.padding(8.dp))
                 Text(fontFamily = fontFamily, text = "Protein: ${food.totalProtein}g", modifier = Modifier.padding(8.dp))
