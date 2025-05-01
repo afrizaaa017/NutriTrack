@@ -78,7 +78,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier, au
         startDestination = BottomNavItem.Dashboard.route,
         modifier = modifier
     ) {
-        composable(BottomNavItem.Dashboard.route) { DashboardScreen() }
+        composable(BottomNavItem.Dashboard.route) { DashboardScreen(authViewModel) }
         composable(BottomNavItem.Eats.route) { EatsScreen(navController) }
         composable(BottomNavItem.Leaderboard.route) { LeaderboardScreen() }
         composable(BottomNavItem.Profile.route) { ProfileScreen(modifier, navController, authViewModel) }

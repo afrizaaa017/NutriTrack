@@ -46,3 +46,35 @@ data class UserProfile(
     @SerializedName("points")
     val points: Int = 0
 )
+
+data class DailySummary(
+    @SerializedName("email")
+    val email: String,
+
+    @SerializedName("date")
+    val date: String,
+
+    @SerializedName("target_calories")
+    val targetCalories: Int,
+
+    @SerializedName("calories_consumed")
+    val caloriesConsumed: Int,
+
+    @SerializedName("fat_consumed")
+    val fatConsumed: Int,
+
+    @SerializedName("sugar_consumed")
+    val sugarConsumed: Int,
+
+    @SerializedName("carbs_consumed")
+    val carbsConsumed: Int,
+
+    @SerializedName("protein_consumed")
+    val proteinConsumed: Int,
+
+    @SerializedName("weight_recap")
+    val weightRecap: Float,
+
+    @SerializedName("height_recap")
+    val heightRecap: Float
+)

@@ -6,6 +6,8 @@ import retrofit2.http.Query
 import retrofit2.Response
 import com.example.nutritrack.data.model.FoodResponse
 import com.example.nutritrack.data.model.Consume
+import com.example.nutritrack.data.model.DailySummary
+import com.example.nutritrack.data.model.DailySummaryResponse
 import com.example.nutritrack.data.model.OnboardingResponse
 import com.example.nutritrack.data.model.SignInResponse
 import com.example.nutritrack.data.model.SignOutResponse
@@ -58,5 +60,11 @@ interface LaravelApiService {
 
     @GET("summary")
     suspend fun getDailySummary(@Query("email") email: String): SummaryData
+
+    @GET("dailyReport")
+    suspend fun getDailyReport(
+        @Header("Authorization") authToken: String,
+        @Query("date") date: String
+    ): DailySummaryResponse
 
 }

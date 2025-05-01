@@ -1,0 +1,17 @@
+Index: app/src/main/java/com/example/nutritrack/data/api/RetrofitClient.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.nutritrack.data.api\r\n\r\nimport retrofit2.Retrofit\r\nimport retrofit2.converter.gson.GsonConverterFactory\r\nimport com.example.nutritrack.data.api.LaravelApiService\r\n\r\nobject RetrofitClient {\r\n    private const val BASE_URL = \"http://192.168.0.100:8000/api/\"\r\n\r\n    val instance: LaravelApiService by lazy {\r\n        val retrofit = Retrofit.Builder()\r\n            .baseUrl(BASE_URL)\r\n            .addConverterFactory(GsonConverterFactory.create())\r\n            .build()\r\n\r\n        retrofit.create(LaravelApiService::class.java)\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/app/src/main/java/com/example/nutritrack/data/api/RetrofitClient.kt b/app/src/main/java/com/example/nutritrack/data/api/RetrofitClient.kt
+--- a/app/src/main/java/com/example/nutritrack/data/api/RetrofitClient.kt	(revision 6a192c1a358cd20154c4299813a9e0bfaedb37bb)
++++ b/app/src/main/java/com/example/nutritrack/data/api/RetrofitClient.kt	(date 1744479514000)
+@@ -5,7 +5,7 @@
+ import com.example.nutritrack.data.api.LaravelApiService
+ 
+ object RetrofitClient {
+-    private const val BASE_URL = "http://192.168.0.100:8000/api/"
++    private const val BASE_URL = "http://192.168.100.65:8000/api/"
+ 
+     val instance: LaravelApiService by lazy {
+         val retrofit = Retrofit.Builder()
