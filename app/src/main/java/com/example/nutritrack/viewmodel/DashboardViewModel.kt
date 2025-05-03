@@ -14,6 +14,9 @@ class DashboardViewModel(private val repository: DashboardRepository, private va
     private val _dailyReportState = MutableStateFlow<DailyReportState>(DailyReportState.Initial)
     val dailyReportState: StateFlow<DailyReportState> = _dailyReportState.asStateFlow()
 
+    private val _graphState = MutableStateFlow<GraphState>(GraphState.Initial)
+    val graphState: StateFlow<GraphState> = _graphState.asStateFlow()
+
 
     // Sealed class for UI state
     sealed class DailyReportState {
@@ -21,6 +24,14 @@ class DashboardViewModel(private val repository: DashboardRepository, private va
         object Loading : DailyReportState()
         data class Success(val dailySummary: DailySummary) : DailyReportState()
         data class Error(val message: String) : DailyReportState()
+    }
+
+    sealed class GraphState {
+        object Initial : GraphState()
+        object Loading : GraphState()
+        data class Success(val data: List<DailySummary>, val count: Int) : GraphState()
+        object Empty : GraphState()
+        data class Error(val message: String) : GraphState()
     }
 
     fun fetchDailyReport(authToken: String, date: String) {
@@ -45,6 +56,37 @@ class DashboardViewModel(private val repository: DashboardRepository, private va
             } catch (e: Exception) {
                 _dailyReportState.value = DailyReportState.Error(
                     e.message ?: "Failed to fetch daily report"
+                )
+            }
+        }
+    }
+
+    fun fetchGraphData(authToken: String) {
+        viewModelScope.launch {
+            _graphState.value = GraphState.Loading
+            try {
+                val userEmail = firebaseAuth.currentUser?.email ?: ""
+                val response = repository.showGraph(authToken, userEmail)
+
+                when (response.status) {
+                    "success" -> {
+                        val data = response.data ?: emptyList()
+                        val count = response.count ?: 0
+                        _graphState.value = GraphState.Success(data, count)
+                    }
+                    "empty" -> {
+                        _graphState.value = GraphState.Empty
+                    }
+                    "error" -> {
+                        _graphState.value = GraphState.Error(response.message)
+                    }
+                    else -> {
+                        _graphState.value = GraphState.Error("Unknown response status")
+                    }
+                }
+            } catch (e: Exception) {
+                _graphState.value = GraphState.Error(
+                    e.message ?: "Failed to fetch graph data"
                 )
             }
         }

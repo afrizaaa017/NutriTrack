@@ -16,6 +16,7 @@ import com.example.nutritrack.data.model.FoodRecommendationsResponse
 import com.example.nutritrack.data.model.User
 import com.example.nutritrack.data.model.UserProfile
 import com.example.nutritrack.data.model.ResetUpdateResponse
+import com.example.nutritrack.data.model.ShowGraphResponse
 import com.example.nutritrack.data.model.SummaryData
 import retrofit2.Call
 import retrofit2.http.Body
@@ -66,5 +67,11 @@ interface LaravelApiService {
         @Header("Authorization") authToken: String,
         @Query("date") date: String
     ): DailySummaryResponse
+
+    @GET("showGraph")
+    suspend fun showGraph(
+        @Header("Authorization") authToken: String,
+        @Query("email") email: String
+    ): ShowGraphResponse
 
 }

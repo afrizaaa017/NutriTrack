@@ -43,3 +43,14 @@ data class DailySummaryResponse(
     val message: String,
     @SerializedName("data") val data: DailySummary? = null
 )
+
+data class ShowGraphResponse(
+    @SerializedName("status")
+    val status: String,
+    @SerializedName("message")
+    val message: String,
+    @SerializedName("data")
+    val data: List<DailySummary>? = null,
+    @SerializedName("count")
+    val count: Int? = null
+)
