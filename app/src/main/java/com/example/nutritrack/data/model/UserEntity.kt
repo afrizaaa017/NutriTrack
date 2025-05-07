@@ -41,10 +41,7 @@ data class UserProfile(
     val gender: Boolean,
 
     @SerializedName("image")
-    val image: String?,
-
-    @SerializedName("points")
-    val points: Int = 0
+    val image: String?
 )
 
 data class DailySummary(

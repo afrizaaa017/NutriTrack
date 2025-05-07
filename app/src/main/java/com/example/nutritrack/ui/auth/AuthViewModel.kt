@@ -393,8 +393,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 amr = selectedActivity,
                 caloriesNeeded = 0f,
                 gender = genderBoolean,
-                image = null,
-                points = 0
+                image = null
             )
 
             val token = sharedPref.getString("auth_token", "") ?: ""

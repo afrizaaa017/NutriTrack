@@ -49,6 +49,16 @@ import androidx.navigation.compose.rememberNavController
 import com.example.nutritrack.MainScreen
 import com.example.nutritrack.ui.auth.AuthViewModel
 import com.example.nutritrack.ui.theme.BrokenWhite
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.*
+import androidx.compose.ui.draw.clip
+import java.util.*
 
 @Composable
 fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel) {
@@ -77,393 +87,620 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH),
         calendar.get(Calendar.DAY_OF_MONTH)
-    )
+    ).apply {
+        datePicker.maxDate = Calendar.getInstance().timeInMillis // Restrict to today
+    }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(MaterialTheme.colorScheme.tertiary)
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
     ) {
-        when (currentStep) {
-            1 -> {
-                Text("Let us know you!", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "Fill in your details to personalize your experience!", fontSize = 16.sp)
-                Spacer(modifier = Modifier.height(48.dp))
-
-
-                Button(
-                    onClick = {
-                        isButtonPressed = true
-                        isButtonPressed = false
-                        currentStep = 2
-                    },
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Progress Bar
+                LinearProgressIndicator(
+                    progress = { currentStep / 5f },
                     modifier = Modifier
-                        .width(280.dp)
-                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        disabledContainerColor = BrokenWhite
-                    ),
-                    shape = RoundedCornerShape(24.dp),
-                    elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 6.dp,
-                        pressedElevation = 12.dp,
-                        disabledElevation = 2.dp
-                    )
-                ) {
-                    Text("Let’s Begin!")
-                }
-            }
-
-            2 -> {
-                Text("Step 1: Personal Information", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Spacer(modifier = Modifier.height(48.dp))
-
-                OutlinedTextField(
-                    value = firstName,
-                    onValueChange = { firstName = it },
-                    label = { Text("First Name") },
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.width(280.dp),
-                    singleLine = true,
-                    isError = isButtonPressed && firstName.isEmpty(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
-                    )
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(4.dp)),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
                 )
-                if (isButtonPressed && firstName.isEmpty()) {
-                    Text("First Name cannot be empty", color = Color.Red, fontSize = 12.sp)
-                }
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = lastName,
-                    onValueChange = { lastName = it },
-                    label = { Text("Last Name") },
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.width(280.dp),
-                    singleLine = true,
-                    isError = isButtonPressed && lastName.isEmpty(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
-                    )
-                )
-                if (isButtonPressed && lastName.isEmpty()) {
-                    Text("Last Name cannot be empty", color = Color.Red, fontSize = 12.sp)
-                }
-
-                Spacer(modifier = Modifier.height(18.dp))
-
-                OutlinedTextField(
-                    value = birthDate,
-                    onValueChange = {},
-                    label = { Text("Date of Birth") },
-                    shape = RoundedCornerShape(12.dp),
-                    readOnly = true,
-                    isError = isButtonPressed && birthDate.isEmpty(),
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = "Pick Date",
-                            modifier = Modifier.clickable { datePickerDialog.show() }
+                when (currentStep) {
+                    1 -> {
+                        Text(
+                            text = "Welcome Aboard!",
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
                         )
-                    },
-                    modifier = Modifier
-                        .width(280.dp)
-                        .clickable { datePickerDialog.show() },
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
-                    )
-                )
-                if (isButtonPressed && birthDate.isEmpty()) {
-                    Text("Date of Birth cannot be empty", color = Color.Red, fontSize = 12.sp)
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text("Gender", fontSize = 16.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    listOf("Male", "Female").forEach { gender ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.clickable { selectedGender = gender }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "Let's personalize your journey with a few quick steps!",
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Spacer(modifier = Modifier.height(48.dp))
+                        Button(
+                            onClick = {
+                                isButtonPressed = true
+                                isButtonPressed = false
+                                currentStep = 2
+                            },
+                            modifier = Modifier
+                                .width(280.dp)
+                                .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                disabledContainerColor = Color(0xFFECEFF1)
+                            ),
+                            shape = RoundedCornerShape(24.dp),
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 6.dp,
+                                pressedElevation = 12.dp,
+                                disabledElevation = 2.dp
+                            )
                         ) {
-                            RadioButton(
-                                selected = selectedGender == gender,
-                                onClick = { selectedGender = gender },
-                                colors = RadioButtonDefaults.colors(
-                                    selectedColor = MaterialTheme.colorScheme.primary
+                            Text("Get Started!", fontSize = 18.sp)
+                        }
+                    }
+
+                    2 -> {
+                        Text(
+                            text = "Personal Information",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Step 1 of 4",
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        OutlinedTextField(
+                            value = firstName,
+                            onValueChange = { firstName = it },
+                            label = { Text("First Name") },
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.width(280.dp),
+                            singleLine = true,
+                            isError = isButtonPressed && firstName.isEmpty(),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
+                            )
+                        )
+                        if (isButtonPressed && firstName.isEmpty()) {
+                            Text(
+                                "First Name cannot be empty",
+                                color = Color.Red,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        OutlinedTextField(
+                            value = lastName,
+                            onValueChange = { lastName = it },
+                            label = { Text("Last Name") },
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.width(280.dp),
+                            singleLine = true,
+                            isError = isButtonPressed && lastName.isEmpty(),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
+                            )
+                        )
+                        if (isButtonPressed && lastName.isEmpty()) {
+                            Text(
+                                "Last Name cannot be empty",
+                                color = Color.Red,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        OutlinedTextField(
+                            value = birthDate,
+                            onValueChange = {},
+                            label = { Text("Date of Birth") },
+                            shape = RoundedCornerShape(12.dp),
+                            readOnly = true,
+                            isError = isButtonPressed && birthDate.isEmpty(),
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.DateRange,
+                                    contentDescription = "Pick Date",
+                                    modifier = Modifier.clickable { datePickerDialog.show() }
+                                )
+                            },
+                            modifier = Modifier
+                                .width(280.dp)
+                                .clickable { datePickerDialog.show() },
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
+                            )
+                        )
+                        if (isButtonPressed && birthDate.isEmpty()) {
+                            Text(
+                                "Date of Birth cannot be empty",
+                                color = Color.Red,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        Text(
+                            text = "Gender",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.align(Alignment.Start)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            listOf("male", "female").forEach { gender ->
+                                Card(
+                                    modifier = Modifier
+                                        .width(120.dp)
+                                        .clickable { selectedGender = gender }
+                                        .border(
+                                            width = if (selectedGender == gender) 2.dp else 1.dp,
+                                            color = if (selectedGender == gender) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                            shape = RoundedCornerShape(12.dp)
+                                        ),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = if (selectedGender == gender) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.White
+                                    )
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(12.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(gender, fontSize = 16.sp)
+                                    }
+                                }
+                            }
+                        }
+                        if (isButtonPressed && selectedGender.isEmpty()) {
+                            Text(
+                                "Please select a gender",
+                                color = Color.Red,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(start = 8.dp, top = 8.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        Button(
+                            onClick = {
+                                isButtonPressed = true
+                                if (firstName.isNotEmpty() && lastName.isNotEmpty() && birthDate.isNotEmpty() && selectedGender.isNotEmpty()) {
+                                    isButtonPressed = false
+                                    currentStep = 3
+                                }
+                            },
+                            modifier = Modifier
+                                .width(280.dp)
+                                .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                disabledContainerColor = Color(0xFFECEFF1)
+                            ),
+                            shape = RoundedCornerShape(24.dp),
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 6.dp,
+                                pressedElevation = 12.dp,
+                                disabledElevation = 2.dp
+                            )
+                        ) {
+                            Text("Next", fontSize = 18.sp)
+                        }
+                    }
+
+                    3 -> {
+                        Text(
+                            text = "Body Measurements",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Step 2 of 4",
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = height,
+                                onValueChange = { height = it },
+                                label = { Text("Height (cm)") },
+                                shape = RoundedCornerShape(12.dp),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                modifier = Modifier.weight(1f),
+                                isError = isButtonPressed && height.isEmpty(),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
                                 )
                             )
-                            Text(gender, modifier = Modifier.padding(start = 8.dp))
+                            OutlinedTextField(
+                                value = weight,
+                                onValueChange = { weight = it },
+                                label = { Text("Weight (kg)") },
+                                shape = RoundedCornerShape(12.dp),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                modifier = Modifier.weight(1f),
+                                isError = isButtonPressed && weight.isEmpty(),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
+                                )
+                            )
                         }
-                    }
-                }
-
-                if (isButtonPressed && selectedGender.isEmpty()) {
-                    Text("Please select a gender", color = Color.Red, fontSize = 12.sp)
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = {
-                        isButtonPressed = true
-                        if (firstName.isNotEmpty() && lastName.isNotEmpty() && birthDate.isNotEmpty()) {
-                            isButtonPressed = false
-                            currentStep = 3
+                        if (isButtonPressed && (height.isEmpty() || weight.isEmpty())) {
+                            Text(
+                                "Please fill in both height and weight",
+                                color = Color.Red,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(start = 8.dp, top = 8.dp)
+                            )
                         }
-                    },
-                    modifier = Modifier
-                        .width(280.dp)
-                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        disabledContainerColor = BrokenWhite
-                    ),
-                    shape = RoundedCornerShape(24.dp),
-                    elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 6.dp,
-                        pressedElevation = 12.dp,
-                        disabledElevation = 2.dp
-                    )
-                ) {
-                    Text("Next")
-                }
-            }
+                        Spacer(modifier = Modifier.height(32.dp))
 
-            3 -> {
-                Text("Step 2: Body Measurements", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Spacer(modifier = Modifier.height(48.dp))
-            Row (
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                OutlinedTextField(
-                    value = height,
-                    onValueChange = { height = it },
-                    label = { Text("Height (cm)") },
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(1f),
-                    isError = isButtonPressed && height.isEmpty(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
-                    )
-                )
-                if (isButtonPressed && height.isEmpty()) {
-                    Text("Height cannot be empty", color = Color.Red, fontSize = 12.sp)
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-
-                OutlinedTextField(
-                    value = weight,
-                    onValueChange = { weight = it },
-                    label = { Text("Weight (kg)") },
-                    shape = RoundedCornerShape(12.dp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(1f),
-                    isError = isButtonPressed && weight.isEmpty(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.tertiary
-                    )
-                )
-                if (isButtonPressed && weight.isEmpty()) {
-                    Text("Weight cannot be empty", color = Color.Red, fontSize = 12.sp)
-                }
-            }
-                Spacer(modifier = Modifier.height(24.dp))
-                Row (
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Button(
-                        onClick = { currentStep = 2 },
-                        modifier = Modifier
-                            .weight(1f)
-                            .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary
-                        ),
-                        shape = RoundedCornerShape(24.dp),
-                        elevation = ButtonDefaults.buttonElevation(
-                            defaultElevation = 6.dp,
-                            pressedElevation = 12.dp,
-                            disabledElevation = 2.dp
-                        )
-                    ) {
-                        Text("Back")
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Button(
-                        onClick = {
-                            isButtonPressed = true
-                            if (height.isNotEmpty() && weight.isNotEmpty()) {
-                                isButtonPressed = false
-                                currentStep = 4
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Button(
+                                onClick = { currentStep = 2 },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondary
+                                ),
+                                shape = RoundedCornerShape(24.dp),
+                                elevation = ButtonDefaults.buttonElevation(
+                                    defaultElevation = 6.dp,
+                                    pressedElevation = 12.dp,
+                                    disabledElevation = 2.dp
+                                )
+                            ) {
+                                Text("Back", fontSize = 18.sp)
                             }
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            disabledContainerColor = BrokenWhite
-                        ),
-                        shape = RoundedCornerShape(24.dp),
-                        elevation = ButtonDefaults.buttonElevation(
-                            defaultElevation = 6.dp,
-                            pressedElevation = 12.dp,
-                            disabledElevation = 2.dp
-                        )
-                    ) {
-                        Text("Next")
-                    }
-                }
-            }
-            4 -> {
-                Text("Step 3: Activity Level", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Spacer(modifier = Modifier.height(48.dp))
-
-                Column {
-                    listOf("Sedentary active", "Lightly active", "Moderately active", "Highly active", "Extremely active").forEach { level ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(selected = selectedActivity == level, onClick = { selectedActivity = level })
-                            Text(level, modifier = Modifier.padding(start = 8.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Button(
+                                onClick = {
+                                    isButtonPressed = true
+                                    if (height.isNotEmpty() && weight.isNotEmpty()) {
+                                        isButtonPressed = false
+                                        currentStep = 4
+                                    }
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    disabledContainerColor = Color(0xFFECEFF1)
+                                ),
+                                shape = RoundedCornerShape(24.dp),
+                                elevation = ButtonDefaults.buttonElevation(
+                                    defaultElevation = 6.dp,
+                                    pressedElevation = 12.dp,
+                                    disabledElevation = 2.dp
+                                )
+                            ) {
+                                Text("Next", fontSize = 18.sp)
+                            }
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    4 -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState())
+                                .padding(bottom = 16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Activity Level",
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "Step 3 of 4",
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                            Spacer(modifier = Modifier.height(24.dp))
 
-                Row (
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                    Button(onClick = { currentStep = 3 },
-                        modifier = Modifier
-                            .weight(1f)
-                            .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary
-                        ),
-                        shape = RoundedCornerShape(24.dp),
-                        elevation = ButtonDefaults.buttonElevation(
-                            defaultElevation = 6.dp,
-                            pressedElevation = 12.dp,
-                            disabledElevation = 2.dp
-                        )) {
-                        Text("Back")
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Button(onClick = {
-                        isButtonPressed = true
-                        if (selectedActivity.isNotEmpty()) {
-                            isButtonPressed = false
-                            currentStep = 5
-                        } },
-                        modifier = Modifier
-                            .weight(1f)
-                            .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            disabledContainerColor = BrokenWhite
-                        ),
-                        shape = RoundedCornerShape(24.dp),
-                        elevation = ButtonDefaults.buttonElevation(
-                            defaultElevation = 6.dp,
-                            pressedElevation = 12.dp,
-                            disabledElevation = 2.dp
-                        )) {
-                        Text("Next")
-                    }
-                }
-            }
+                            val activityLevels = listOf(
+                                "Sedentary active" to "Minimal exercise, mostly sitting (e.g., office work)",
+                                "Lightly active" to "Light exercise/sports 1-3 days/week",
+                                "Moderately active" to "Moderate exercise/sports 3-5 days/week",
+                                "Highly active" to "Hard exercise/sports 6-7 days/week",
+                                "Extremely active" to "Very intense exercise, physical job, or training"
+                            )
 
-            5 -> {
-                Text("Step 4: Choose Your Goal", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                Spacer(modifier = Modifier.height(48.dp))
-
-                Column {
-                    listOf("Lose a little weight", "Lose a lot of weight", "Maintain weight", "Gain a little weight", "Gain a lot of weight").forEach { goal ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(selected = selectedGoal == goal, onClick = { selectedGoal = goal })
-                            Text(goal, modifier = Modifier.padding(start = 8.dp))
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Button(
-                        onClick = { currentStep = 4 },
-                        modifier = Modifier
-                            .weight(1f)
-                            .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary
-                        ),
-                        shape = RoundedCornerShape(24.dp),
-                        elevation = ButtonDefaults.buttonElevation(
-                            defaultElevation = 6.dp,
-                            pressedElevation = 12.dp,
-                            disabledElevation = 2.dp
-                        )
-                    ) {
-                        Text("Back")
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Button(
-                        onClick = {
-
-                            isButtonPressed = true
-                            if (selectedGoal.isNotEmpty()) {
-                                isButtonPressed = false
-                                authViewModel.completeOnboarding(
-                                    firstName = firstName,
-                                    lastName = lastName,
-                                    birthDate = birthDate,
-                                    selectedGender = selectedGender,
-                                    height = height,
-                                    weight = weight,
-                                    selectedActivity = selectedActivity,
-                                    selectedGoal = selectedGoal,
-                                    context
+                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                activityLevels.forEach { (level, description) ->
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { selectedActivity = level }
+                                            .border(
+                                                width = if (selectedActivity == level) 2.dp else 1.dp,
+                                                color = if (selectedActivity == level) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                                shape = RoundedCornerShape(12.dp)
+                                            ),
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = if (selectedActivity == level) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.White
+                                        )
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(16.dp)
+                                        ) {
+                                            Text(
+                                                text = level,
+                                                fontSize = 16.sp,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                            Text(
+                                                text = description,
+                                                fontSize = 14.sp,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                modifier = Modifier.padding(top = 4.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            if (isButtonPressed && selectedActivity.isEmpty()) {
+                                Text(
+                                    "Please select an activity level",
+                                    color = Color.Red,
+                                    fontSize = 12.sp,
+                                    modifier = Modifier.padding(start = 8.dp, top = 8.dp)
                                 )
                             }
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            disabledContainerColor = BrokenWhite
-                        ),
-                        shape = RoundedCornerShape(24.dp),
-                        elevation = ButtonDefaults.buttonElevation(
-                            defaultElevation = 6.dp,
-                            pressedElevation = 12.dp,
-                            disabledElevation = 2.dp
-                        )
-                    ) {
-                        Text("Finish!")
+                            Spacer(modifier = Modifier.height(32.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Button(
+                                    onClick = { currentStep = 3 },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.secondary
+                                    ),
+                                    shape = RoundedCornerShape(24.dp),
+                                    elevation = ButtonDefaults.buttonElevation(
+                                        defaultElevation = 6.dp,
+                                        pressedElevation = 12.dp,
+                                        disabledElevation = 2.dp
+                                    )
+                                ) {
+                                    Text("Back", fontSize = 18.sp)
+                                }
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Button(
+                                    onClick = {
+                                        isButtonPressed = true
+                                        if (selectedActivity.isNotEmpty()) {
+                                            isButtonPressed = false
+                                            currentStep = 5
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        disabledContainerColor = Color(0xFFECEFF1)
+                                    ),
+                                    shape = RoundedCornerShape(24.dp),
+                                    elevation = ButtonDefaults.buttonElevation(
+                                        defaultElevation = 6.dp,
+                                        pressedElevation = 12.dp,
+                                        disabledElevation = 2.dp
+                                    )
+                                ) {
+                                    Text("Next", fontSize = 18.sp)
+                                }
+                            }
+                        }
+                    }
+
+                    5 -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState())
+                                .padding(bottom = 16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Your Goal",
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "Step 4 of 4",
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            val goals = listOf(
+                                "Lose a little weight" to "Gradual weight loss for better health",
+                                "Lose a lot of weight" to "Significant weight loss for transformation",
+                                "Maintain weight" to "Keep your current weight stable",
+                                "Gain a little weight" to "Build some muscle or gain slight weight",
+                                "Gain a lot of weight" to "Substantial muscle gain or bulking"
+                            )
+
+                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                goals.forEach { (goal, description) ->
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { selectedGoal = goal }
+                                            .border(
+                                                width = if (selectedGoal == goal) 2.dp else 1.dp,
+                                                color = if (selectedGoal == goal) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                                shape = RoundedCornerShape(12.dp)
+                                            ),
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = if (selectedGoal == goal) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.White
+                                        )
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(16.dp)
+                                        ) {
+                                            Text(
+                                                text = goal,
+                                                fontSize = 16.sp,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                            Text(
+                                                text = description,
+                                                fontSize = 14.sp,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                modifier = Modifier.padding(top = 4.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            if (isButtonPressed && selectedGoal.isEmpty()) {
+                                Text(
+                                    "Please select a goal",
+                                    color = Color.Red,
+                                    fontSize = 12.sp,
+                                    modifier = Modifier.padding(start = 8.dp, top = 8.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(32.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Button(
+                                    onClick = { currentStep = 4 },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.secondary
+                                    ),
+                                    shape = RoundedCornerShape(24.dp),
+                                    elevation = ButtonDefaults.buttonElevation(
+                                        defaultElevation = 6.dp,
+                                        pressedElevation = 12.dp,
+                                        disabledElevation = 2.dp
+                                    )
+                                ) {
+                                    Text("Back", fontSize = 18.sp)
+                                }
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Button(
+                                    onClick = {
+                                        isButtonPressed = true
+                                        if (selectedGoal.isNotEmpty()) {
+                                            isButtonPressed = false
+                                            authViewModel.completeOnboarding(
+                                                firstName = firstName,
+                                                lastName = lastName,
+                                                birthDate = birthDate,
+                                                selectedGender = selectedGender,
+                                                height = height,
+                                                weight = weight,
+                                                selectedActivity = selectedActivity,
+                                                selectedGoal = selectedGoal,
+                                                context
+                                            )
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .shadow(elevation = 6.dp, shape = RoundedCornerShape(12.dp)),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        disabledContainerColor = Color(0xFFECEFF1)
+                                    ),
+                                    shape = RoundedCornerShape(24.dp),
+                                    elevation = ButtonDefaults.buttonElevation(
+                                        defaultElevation = 6.dp,
+                                        pressedElevation = 12.dp,
+                                        disabledElevation = 2.dp
+                                    )
+                                ) {
+                                    Text("Finish!", fontSize = 18.sp)
+                                }
+                            }
+                        }
                     }
                 }
             }
