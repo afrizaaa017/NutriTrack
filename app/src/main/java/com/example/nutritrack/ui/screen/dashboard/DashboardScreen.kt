@@ -45,6 +45,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import kotlin.math.pow
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.PathEffect
 
 @Composable
 fun DashboardScreen(authViewModel: AuthViewModel) {
@@ -802,6 +803,7 @@ fun GraphCanvas(data: List<DailySummary>, isWeightGraph: Boolean) {
     val gridColor = Color(0xFFE5E7EB)
     val textColor = Color(0xFF6B7280)
     val fillColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f) // Warna tertiary dengan opasitas rendah
+    val dashedLineColor = textColor.copy(alpha = 0.8f) // Warna garis putus-putus dengan opasitas rendah
 
     // State untuk menyimpan informasi titik yang diklik
     var selectedPoint by remember { mutableStateOf<Pair<Offset, Float>?>(null) }
@@ -909,32 +911,46 @@ fun GraphCanvas(data: List<DailySummary>, isWeightGraph: Boolean) {
                 style = Stroke(width = 6f) // Garis lebih tebal
             )
 
-            // Gambar titik data
+            // Gambar titik data dan garis putus-putus ke sumbu X
             for (i in 0 until pointCount) {
                 val x = canvasWidth * i / (pointCount - 1).coerceAtLeast(1)
                 val value = values[i]
                 val normalizedValue = if (valueRange == 0f) 0f else (value - minValue) / valueRange
                 val y = canvasHeight * (1f - normalizedValue)
+
+                // Gambar garis putus-putus dari titik ke sumbu X
+                drawLine(
+                    color = dashedLineColor,
+                    start = Offset(x, y),
+                    end = Offset(x, canvasHeight),
+                    strokeWidth = 1f,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f) // Pola putus-putus
+                )
+
+                // Gambar titik data
                 drawCircle(
                     color = lineColor,
                     radius = 8f, // Titik lebih besar
                     center = Offset(x, y)
                 )
 
-                // Tampilkan nilai di atas titik yang dipilih
-                if (selectedPoint != null && points[i] == selectedPoint!!.first) {
-                    val displayValue = value.toInt() // Konversi ke integer
-                    drawContext.canvas.nativeCanvas.drawText(
-                        "$displayValue ${if (isWeightGraph) "kg" else "cm"}",
-                        x,
-                        y - 15.dp.toPx(), // Posisi teks di atas titik
-                        android.graphics.Paint().apply {
-                            color = textColor.toArgb()
-                            textSize = 12.sp.toPx()
-                            textAlign = android.graphics.Paint.Align.CENTER
-                            isAntiAlias = true
-                        }
-                    )
+                // Tampilkan nilai di atas titik yang dipilih dengan perbandingan jarak hanya pada sumbu X
+                if (selectedPoint != null) {
+                    val xDistance = kotlin.math.abs(x - selectedPoint!!.first.x)
+                    if (xDistance < 10f) { // Hanya bandingkan koordinat X dengan toleransi
+                        val displayValue = value.toInt() // Konversi ke integer
+                        drawContext.canvas.nativeCanvas.drawText(
+                            "$displayValue ${if (isWeightGraph) "kg" else "cm"}",
+                            x,
+                            y - 15.dp.toPx(), // Posisi teks di atas titik
+                            android.graphics.Paint().apply {
+                                color = textColor.toArgb()
+                                textSize = 12.sp.toPx()
+                                textAlign = android.graphics.Paint.Align.CENTER
+                                isAntiAlias = true
+                            }
+                        )
+                    }
                 }
             }
         }
