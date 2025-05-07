@@ -10,7 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.nutritrack.ui.auth.AuthViewModel
+import com.example.nutritrack.viewmodel.AuthViewModel
+import com.example.nutritrack.viewmodel.AuthState
 import com.example.nutritrack.ui.navigation.BottomNavigationBar
 import com.example.nutritrack.ui.navigation.NavGraph
 import com.example.nutritrack.ui.navigation.RootNavGraph

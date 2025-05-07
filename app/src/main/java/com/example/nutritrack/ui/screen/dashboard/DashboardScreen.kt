@@ -19,7 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nutritrack.data.repository.DashboardRepository
-import com.example.nutritrack.ui.auth.AuthViewModel
+import com.example.nutritrack.viewmodel.AuthViewModel
+import com.example.nutritrack.viewmodel.AuthState
 import com.example.nutritrack.viewmodel.DashboardViewModel
 import com.example.nutritrack.viewmodel.DashboardViewModelFactory
 import com.google.firebase.auth.FirebaseAuth

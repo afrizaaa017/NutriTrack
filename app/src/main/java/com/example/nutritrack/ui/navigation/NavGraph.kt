@@ -19,8 +19,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.example.nutritrack.MainScreen
-import com.example.nutritrack.ui.auth.AuthState
-import com.example.nutritrack.ui.auth.AuthViewModel
+import com.example.nutritrack.viewmodel.AuthViewModel
+import com.example.nutritrack.viewmodel.AuthState
 import com.example.nutritrack.ui.auth.ForgotPasswordScreen
 import com.example.nutritrack.ui.auth.SignInScreen
 import com.example.nutritrack.ui.auth.SignUpScreen

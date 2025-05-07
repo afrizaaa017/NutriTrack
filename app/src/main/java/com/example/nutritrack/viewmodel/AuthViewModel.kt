@@ -1,4 +1,4 @@
-package com.example.nutritrack.ui.auth
+package com.example.nutritrack.viewmodel
 
 import android.app.Application
 import android.content.Context

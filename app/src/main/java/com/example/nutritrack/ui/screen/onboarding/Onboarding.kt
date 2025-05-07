@@ -47,7 +47,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.nutritrack.MainScreen
-import com.example.nutritrack.ui.auth.AuthViewModel
+import com.example.nutritrack.viewmodel.AuthViewModel
+import com.example.nutritrack.viewmodel.AuthState
 import com.example.nutritrack.ui.theme.BrokenWhite
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

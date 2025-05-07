@@ -57,7 +57,8 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.nutritrack.data.model.RecommendedFood
-import com.example.nutritrack.ui.auth.AuthViewModel
+import com.example.nutritrack.viewmodel.AuthViewModel
+import com.example.nutritrack.viewmodel.AuthState
 import com.example.nutritrack.ui.theme.BrokenWhite
 import com.example.nutritrack.ui.theme.fontFamily
 

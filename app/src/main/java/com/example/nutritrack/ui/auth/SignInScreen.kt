@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.nutritrack.ui.navigation.BottomNavItem
+import com.example.nutritrack.viewmodel.AuthViewModel
+import com.example.nutritrack.viewmodel.AuthState
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
