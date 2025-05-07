@@ -62,7 +62,6 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
     var isLoadingToken by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    // Map ViewModel state to Composable parameters
     val summary = when (state) {
         is DashboardViewModel.DailyReportState.Success -> (state as DashboardViewModel.DailyReportState.Success).dailySummary
         else -> null
@@ -73,7 +72,6 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
         else -> null
     }
 
-    // Date formatter for display and API
     val displayDateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
     val apiDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val today = Calendar.getInstance()
@@ -326,7 +324,7 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Card untuk grafik berat badan dan tinggi badan
+                    // Card for graph
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -340,7 +338,6 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
                                 .fillMaxSize()
                                 .padding(16.dp)
                         ) {
-                            // Tombol untuk memilih jenis grafik
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.Start
@@ -383,7 +380,7 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
 
                             Spacer(modifier = Modifier.height(28.dp))
 
-                            // Grafik menggunakan Canvas
+                            // Graph
                             when (graphState) {
                                 is DashboardViewModel.GraphState.Initial,
                                 is DashboardViewModel.GraphState.Loading -> {
@@ -397,7 +394,6 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
                                 is DashboardViewModel.GraphState.Success -> {
                                     val data = (graphState as DashboardViewModel.GraphState.Success).data.reversed()
                                     if (data.isNotEmpty()) {
-                                        // Debug data untuk memastikan nilai yang diterima
                                         data.forEach { entry ->
                                             println("Date: ${entry.date}, Weight: ${entry.weightRecap}, Height: ${entry.heightRecap}")
                                         }
@@ -436,7 +432,6 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Card baru untuk update weight/height
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -583,7 +578,7 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Card untuk grafik berat badan dan tinggi badan (ketika summary null)
+                    // Card for graph (ketika summary null)
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -597,7 +592,6 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
                                 .fillMaxSize()
                                 .padding(16.dp)
                         ) {
-                            // Tombol untuk memilih jenis grafik
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.Start
@@ -640,7 +634,7 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
 
                             Spacer(modifier = Modifier.height(28.dp))
 
-                            // Grafik menggunakan Canvas
+                            // Graph
                             when (graphState) {
                                 is DashboardViewModel.GraphState.Initial,
                                 is DashboardViewModel.GraphState.Loading -> {
@@ -693,7 +687,6 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Card baru untuk update weight/height
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -791,13 +784,12 @@ fun GraphCanvas(data: List<DailySummary>, isWeightGraph: Boolean) {
     val lineColor = MaterialTheme.colorScheme.primary
     val gridColor = Color(0xFFE5E7EB)
     val textColor = Color(0xFF6B7280)
-    val fillColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f) // Warna tertiary dengan opasitas rendah
-    val dashedLineColor = textColor.copy(alpha = 0.8f) // Warna garis putus-putus dengan opasitas rendah
+    val fillColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)
+    val dashedLineColor = textColor.copy(alpha = 0.8f)
 
-    // State untuk menyimpan informasi titik yang diklik
     var selectedPoint by remember { mutableStateOf<Pair<Offset, Float>?>(null) }
 
-    // Hitung nilai maksimum dan minimum untuk sumbu Y
+    // Nilai maksimum dan minimum untuk sumbu Y
     val values = if (isWeightGraph) {
         data.map { it.weightRecap }
     } else {
@@ -806,7 +798,7 @@ fun GraphCanvas(data: List<DailySummary>, isWeightGraph: Boolean) {
     val maxValue = (values.maxOrNull() ?: 0f).coerceAtLeast(if (isWeightGraph) 100f else 200f)
     val minValue = (values.minOrNull() ?: 0f).coerceAtMost(if (isWeightGraph) 0f else 100f)
     val valueRange = if (maxValue == minValue) {
-        if (maxValue == 0f) 100f else maxValue * 0.2f // Pastikan valueRange tidak nol
+        if (maxValue == 0f) 100f else maxValue * 0.2f
     } else {
         maxValue - minValue
     }
@@ -815,7 +807,6 @@ fun GraphCanvas(data: List<DailySummary>, isWeightGraph: Boolean) {
     val dateFormat = SimpleDateFormat("MMM dd", Locale.getDefault())
     val dates = data.map { dateFormat.format(SimpleDateFormat("yyyy-MM-dd").parse(it.date) ?: Date()) }
 
-    // Simpan posisi titik untuk deteksi sentuhan
     val points = mutableListOf<Offset>()
     val pointValues = mutableListOf<Float>()
 
@@ -826,7 +817,6 @@ fun GraphCanvas(data: List<DailySummary>, isWeightGraph: Boolean) {
             .padding(end = 16.dp, bottom = 30.dp)
             .pointerInput(Unit) {
                 detectTapGestures { offset ->
-                    // Deteksi titik terdekat yang diklik dengan area sensitivitas lebih besar
                     var closestPointIndex = -1
                     var minDistance = Float.MAX_VALUE
                     points.forEachIndexed { index, point ->
@@ -850,11 +840,10 @@ fun GraphCanvas(data: List<DailySummary>, isWeightGraph: Boolean) {
         val canvasHeight = size.height
         val pointCount = data.size
 
-        // Reset daftar titik
         points.clear()
         pointValues.clear()
 
-        // Gambar kotak berwarna untuk ruang genap
+        // Kotak berwarna untuk ruang genap
         val gridLines = 5
         for (i in 0 until gridLines step 2) {
             val topY = canvasHeight * (1f - (i + 1).toFloat() / gridLines)
@@ -866,7 +855,7 @@ fun GraphCanvas(data: List<DailySummary>, isWeightGraph: Boolean) {
             )
         }
 
-        // Gambar garis grid horizontal
+        // Garis grid horizontal
         for (i in 0..gridLines) {
             val y = canvasHeight * (1f - i.toFloat() / gridLines)
             drawLine(
@@ -877,7 +866,7 @@ fun GraphCanvas(data: List<DailySummary>, isWeightGraph: Boolean) {
             )
         }
 
-        // Gambar garis data
+        // Garis data
         if (pointCount > 0) {
             val path = Path()
             for (i in 0 until pointCount) {
@@ -890,24 +879,23 @@ fun GraphCanvas(data: List<DailySummary>, isWeightGraph: Boolean) {
                 } else {
                     path.lineTo(x, y)
                 }
-                // Simpan posisi titik dan nilai
                 points.add(Offset(x, y))
                 pointValues.add(value)
             }
             drawPath(
                 path = path,
                 color = lineColor,
-                style = Stroke(width = 6f) // Garis lebih tebal
+                style = Stroke(width = 6f)
             )
 
-            // Gambar titik data dan garis putus-putus ke sumbu X
+            // Titik data dan garis putus-putus ke sumbu X
             for (i in 0 until pointCount) {
                 val x = canvasWidth * i / (pointCount - 1).coerceAtLeast(1)
                 val value = values[i]
                 val normalizedValue = if (valueRange == 0f) 0f else (value - minValue) / valueRange
                 val y = canvasHeight * (1f - normalizedValue)
 
-                // Gambar garis putus-putus dari titik ke sumbu X
+                // Garis putus-putus dari titik ke sumbu X
                 drawLine(
                     color = dashedLineColor,
                     start = Offset(x, y),
@@ -916,22 +904,21 @@ fun GraphCanvas(data: List<DailySummary>, isWeightGraph: Boolean) {
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f) // Pola putus-putus
                 )
 
-                // Gambar titik data
+                // Titik data
                 drawCircle(
                     color = lineColor,
-                    radius = 8f, // Titik lebih besar
+                    radius = 8f,
                     center = Offset(x, y)
                 )
 
-                // Tampilkan nilai di atas titik yang dipilih dengan perbandingan jarak hanya pada sumbu X
                 if (selectedPoint != null) {
                     val xDistance = kotlin.math.abs(x - selectedPoint!!.first.x)
-                    if (xDistance < 10f) { // Hanya bandingkan koordinat X dengan toleransi
-                        val displayValue = value.toInt() // Konversi ke integer
+                    if (xDistance < 10f) {
+                        val displayValue = value.toInt()
                         drawContext.canvas.nativeCanvas.drawText(
                             "$displayValue ${if (isWeightGraph) "kg" else "cm"}",
                             x,
-                            y - 15.dp.toPx(), // Posisi teks di atas titik
+                            y - 15.dp.toPx(),
                             android.graphics.Paint().apply {
                                 color = textColor.toArgb()
                                 textSize = 12.sp.toPx()
@@ -944,7 +931,7 @@ fun GraphCanvas(data: List<DailySummary>, isWeightGraph: Boolean) {
             }
         }
 
-        // Gambar label sumbu X
+        // Label sumbu X
         dates.forEachIndexed { index, date ->
             val x = canvasWidth * index / (pointCount - 1).coerceAtLeast(1)
             drawContext.canvas.nativeCanvas.drawText(

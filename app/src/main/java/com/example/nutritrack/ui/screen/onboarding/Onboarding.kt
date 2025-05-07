@@ -116,7 +116,6 @@ fun OnboardingScreen(navController: NavController, authViewModel: AuthViewModel)
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Progress Bar
                 LinearProgressIndicator(
                     progress = { currentStep / 5f },
                     modifier = Modifier

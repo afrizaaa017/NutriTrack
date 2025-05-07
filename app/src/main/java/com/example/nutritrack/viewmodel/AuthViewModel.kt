@@ -291,7 +291,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 //    }
 
     fun signOut(context: Context) {
-        val token = sharedPref.getString("auth_token", "") ?: ""
+        val token = getToken()?: ""
         Log.d("SignOut", "Retrieved token: $token")
 
         if (token.isEmpty()) {
@@ -396,7 +396,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 image = null
             )
 
-            val token = sharedPref.getString("auth_token", "") ?: ""
+            val token = getToken() ?: ""
             if (token.isEmpty()) {
                 _authState.value = AuthState.Error("User not authenticated")
                 return

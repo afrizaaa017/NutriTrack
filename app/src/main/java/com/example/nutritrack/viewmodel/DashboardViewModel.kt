@@ -18,7 +18,6 @@ class DashboardViewModel(private val repository: DashboardRepository, private va
     val graphState: StateFlow<GraphState> = _graphState.asStateFlow()
 
 
-    // Sealed class for UI state
     sealed class DailyReportState {
         object Initial : DailyReportState()
         object Loading : DailyReportState()
