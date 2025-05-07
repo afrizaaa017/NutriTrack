@@ -44,6 +44,7 @@ import com.example.nutritrack.data.model.DailySummary
 import androidx.compose.ui.input.pointer.pointerInput
 import kotlin.math.pow
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.ui.geometry.Size
 
 @Composable
 fun DashboardScreen(authViewModel: AuthViewModel) {
@@ -267,7 +268,7 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
                                     CircularProgressIndicator(
                                         progress = { (summary.caloriesConsumed.toFloat() / summary.targetCalories.coerceAtLeast(1)).coerceIn(0f, 1f) },
                                         modifier = Modifier.size(80.dp),
-                                        color = Color(0xFF10B981),
+                                        color = MaterialTheme.colorScheme.secondary,
                                         trackColor = Color(0xFFE5E7EB),
                                         strokeWidth = 8.dp
                                     )
@@ -357,16 +358,16 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
                                 Button(
                                     onClick = { selectedGraphType = "weight" },
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (selectedGraphType == "weight") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
-                                        contentColor = if (selectedGraphType == "weight") Color.White else Color.White
+                                        containerColor = if (selectedGraphType == "weight") MaterialTheme.colorScheme.primary else Color.White,
+                                        contentColor = if (selectedGraphType == "weight") Color.White else MaterialTheme.colorScheme.primary
                                     ),
-                                    shape = RoundedCornerShape(8.dp),
+                                    shape = RoundedCornerShape(24.dp),
                                     modifier = Modifier
                                         .height(36.dp)
                                         .padding(end = 8.dp),
                                     elevation = ButtonDefaults.buttonElevation(
                                         defaultElevation = 4.dp,
-                                        pressedElevation = 8.dp,
+                                        pressedElevation = 12.dp,
                                         disabledElevation = 0.dp)
                                 ) {
                                     Text("Weight", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
@@ -374,23 +375,23 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
                                 Button(
                                     onClick = { selectedGraphType = "height" },
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (selectedGraphType == "height") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
-                                        contentColor = if (selectedGraphType == "height") Color.White else Color.White
+                                        containerColor = if (selectedGraphType == "height") MaterialTheme.colorScheme.primary else Color.White,
+                                        contentColor = if (selectedGraphType == "height") Color.White else MaterialTheme.colorScheme.primary
                                     ),
-                                    shape = RoundedCornerShape(8.dp),
+                                    shape = RoundedCornerShape(24.dp),
                                     modifier = Modifier
                                         .height(36.dp)
                                         .padding(end = 8.dp),
                                     elevation = ButtonDefaults.buttonElevation(
                                         defaultElevation = 4.dp,
-                                        pressedElevation = 8.dp,
+                                        pressedElevation = 12.dp,
                                         disabledElevation = 0.dp)
                                 ) {
                                     Text("Height", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(28.dp))
 
                             // Grafik menggunakan Canvas
                             when (graphState) {
@@ -479,13 +480,13 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
                                     containerColor = MaterialTheme.colorScheme.primary,
                                     contentColor = Color.White
                                 ),
-                                shape = RoundedCornerShape(8.dp),
+                                shape = RoundedCornerShape(24.dp),
                                 modifier = Modifier
                                     .height(36.dp)
                                     .padding(end = 8.dp),
                                 elevation = ButtonDefaults.buttonElevation(
                                     defaultElevation = 4.dp,
-                                    pressedElevation = 8.dp,
+                                    pressedElevation = 12.dp,
                                     disabledElevation = 0.dp)
                             ) {
                                 Text("Update Now", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
@@ -525,7 +526,7 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
                                     CircularProgressIndicator(
                                         progress = { 0F },
                                         modifier = Modifier.size(80.dp),
-                                        color = Color(0xFF10B981),
+                                        color = MaterialTheme.colorScheme.secondary,
                                         trackColor = Color(0xFFE5E7EB),
                                         strokeWidth = 8.dp
                                     )
@@ -614,16 +615,16 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
                                 Button(
                                     onClick = { selectedGraphType = "weight" },
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (selectedGraphType == "weight") MaterialTheme.colorScheme.secondary else Color(0xFFE5E7EB),
-                                        contentColor = if (selectedGraphType == "weight") Color.White else Color(0xFF1F2A44)
+                                        containerColor = if (selectedGraphType == "weight") MaterialTheme.colorScheme.primary else Color.White,
+                                        contentColor = if (selectedGraphType == "weight") Color.White else MaterialTheme.colorScheme.primary
                                     ),
-                                    shape = RoundedCornerShape(8.dp),
+                                    shape = RoundedCornerShape(24.dp),
                                     modifier = Modifier
                                         .height(36.dp)
                                         .padding(end = 8.dp),
                                     elevation = ButtonDefaults.buttonElevation(
                                         defaultElevation = 4.dp,
-                                        pressedElevation = 8.dp,
+                                        pressedElevation = 12.dp,
                                         disabledElevation = 0.dp)
                                 ) {
                                     Text("Weight", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
@@ -631,23 +632,23 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
                                 Button(
                                     onClick = { selectedGraphType = "height" },
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (selectedGraphType == "height") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
-                                        contentColor = if (selectedGraphType == "height") Color.White else Color.White
+                                        containerColor = if (selectedGraphType == "height") MaterialTheme.colorScheme.primary else Color.White,
+                                        contentColor = if (selectedGraphType == "height") Color.White else MaterialTheme.colorScheme.primary
                                     ),
-                                    shape = RoundedCornerShape(8.dp),
+                                    shape = RoundedCornerShape(24.dp),
                                     modifier = Modifier
                                         .height(36.dp)
                                         .padding(end = 8.dp),
                                     elevation = ButtonDefaults.buttonElevation(
                                         defaultElevation = 4.dp,
-                                        pressedElevation = 8.dp,
+                                        pressedElevation = 12.dp,
                                         disabledElevation = 0.dp)
                                 ) {
                                     Text("Height", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(28.dp))
 
                             // Grafik menggunakan Canvas
                             when (graphState) {
@@ -736,13 +737,13 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
                                     containerColor = MaterialTheme.colorScheme.primary,
                                     contentColor = Color.White
                                 ),
-                                shape = RoundedCornerShape(8.dp),
+                                shape = RoundedCornerShape(24.dp),
                                 modifier = Modifier
                                     .height(36.dp)
                                     .padding(end = 8.dp),
                                 elevation = ButtonDefaults.buttonElevation(
                                     defaultElevation = 4.dp,
-                                    pressedElevation = 8.dp,
+                                    pressedElevation = 12.dp,
                                     disabledElevation = 0.dp)
                             ) {
                                 Text("Update Now", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
@@ -797,12 +798,13 @@ fun MacroCircle(macroName: String, value: Int) {
 
 @Composable
 fun GraphCanvas(data: List<DailySummary>, isWeightGraph: Boolean) {
-    val lineColor = Color(0xFF10B981)
+    val lineColor = MaterialTheme.colorScheme.primary
     val gridColor = Color(0xFFE5E7EB)
     val textColor = Color(0xFF6B7280)
+    val fillColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f) // Warna tertiary dengan opasitas rendah
 
     // State untuk menyimpan informasi titik yang diklik
-    var selectedPointInfo by remember { mutableStateOf<String?>(null) }
+    var selectedPoint by remember { mutableStateOf<Pair<Offset, Float>?>(null) }
 
     // Hitung nilai maksimum dan minimum untuk sumbu Y
     val values = if (isWeightGraph) {
@@ -825,143 +827,131 @@ fun GraphCanvas(data: List<DailySummary>, isWeightGraph: Boolean) {
     // Simpan posisi titik untuk deteksi sentuhan
     val points = mutableListOf<Offset>()
     val pointValues = mutableListOf<Float>()
-    val pointDates = mutableListOf<String>()
 
-    Column {
-        // Tampilkan informasi titik yang diklik
-        if (selectedPointInfo != null) {
-            Text(
-                text = selectedPointInfo!!,
-                color = Color(0xFF1F2A44),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-                textAlign = TextAlign.Center
+    Canvas(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(180.dp)
+            .padding(end = 16.dp, bottom = 30.dp)
+            .pointerInput(Unit) {
+                detectTapGestures { offset ->
+                    // Deteksi titik terdekat yang diklik dengan area sensitivitas lebih besar
+                    var closestPointIndex = -1
+                    var minDistance = Float.MAX_VALUE
+                    points.forEachIndexed { index, point ->
+                        val distance = kotlin.math.sqrt(
+                            (offset.x - point.x).pow(2) + (offset.y - point.y).pow(2)
+                        )
+                        if (distance < minDistance && distance < 50f) {
+                            minDistance = distance
+                            closestPointIndex = index
+                        }
+                    }
+                    selectedPoint = if (closestPointIndex != -1) {
+                        Pair(points[closestPointIndex], pointValues[closestPointIndex])
+                    } else {
+                        null
+                    }
+                }
+            }
+    ) {
+        val canvasWidth = size.width
+        val canvasHeight = size.height
+        val pointCount = data.size
+
+        // Reset daftar titik
+        points.clear()
+        pointValues.clear()
+
+        // Gambar kotak berwarna untuk ruang genap
+        val gridLines = 5
+        for (i in 0 until gridLines step 2) {
+            val topY = canvasHeight * (1f - (i + 1).toFloat() / gridLines)
+            val bottomY = canvasHeight * (1f - i.toFloat() / gridLines)
+            drawRect(
+                color = fillColor,
+                topLeft = Offset(0f, topY),
+                size = Size(canvasWidth, bottomY - topY)
             )
-        } else {
-            Spacer(modifier = Modifier.height(20.dp))
         }
 
-        Canvas(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(180.dp)
-                .padding(end = 16.dp, bottom = 30.dp)
-                .pointerInput(Unit) {
-                    detectTapGestures { offset ->
-                        // Deteksi titik terdekat yang diklik
-                        var closestPointIndex = -1
-                        var minDistance = Float.MAX_VALUE
-                        points.forEachIndexed { index, point ->
-                            val distance = kotlin.math.sqrt(
-                                (offset.x - point.x).pow(2) + (offset.y - point.y).pow(2)
-                            )
-                            if (distance < minDistance && distance < 30f) {
-                                minDistance = distance
-                                closestPointIndex = index
-                            }
-                        }
-                        if (closestPointIndex != -1) {
-                            val value = pointValues[closestPointIndex]
-                            val date = pointDates[closestPointIndex]
-                            selectedPointInfo = "$date: ${String.format("%.1f", value)} ${if (isWeightGraph) "kg" else "cm"}"
-                        } else {
-                            selectedPointInfo = null
-                        }
-                    }
+        // Gambar garis grid horizontal
+        for (i in 0..gridLines) {
+            val y = canvasHeight * (1f - i.toFloat() / gridLines)
+            drawLine(
+                color = gridColor,
+                start = Offset(0f, y),
+                end = Offset(canvasWidth, y),
+                strokeWidth = 1f
+            )
+        }
+
+        // Gambar garis data
+        if (pointCount > 0) {
+            val path = Path()
+            for (i in 0 until pointCount) {
+                val x = canvasWidth * i / (pointCount - 1).coerceAtLeast(1)
+                val value = values[i]
+                val normalizedValue = if (valueRange == 0f) 0f else (value - minValue) / valueRange
+                val y = canvasHeight * (1f - normalizedValue)
+                if (i == 0) {
+                    path.moveTo(x, y)
+                } else {
+                    path.lineTo(x, y)
                 }
-        ) {
-            val canvasWidth = size.width
-            val canvasHeight = size.height
-            val pointCount = data.size
-
-            // Reset daftar titik
-            points.clear()
-            pointValues.clear()
-            pointDates.clear()
-
-            // Gambar grid horizontal
-            val gridLines = 5
-            for (i in 0..gridLines) {
-                val y = canvasHeight * (1f - i.toFloat() / gridLines)
-                drawLine(
-                    color = gridColor,
-                    start = Offset(0f, y),
-                    end = Offset(canvasWidth, y),
-                    strokeWidth = 1f
-                )
+                // Simpan posisi titik dan nilai
+                points.add(Offset(x, y))
+                pointValues.add(value)
             }
+            drawPath(
+                path = path,
+                color = lineColor,
+                style = Stroke(width = 6f) // Garis lebih tebal
+            )
 
-            // Gambar garis data
-            if (pointCount > 0) {
-                val path = Path()
-                for (i in 0 until pointCount) {
-                    val x = canvasWidth * i / (pointCount - 1).coerceAtLeast(1)
-                    val value = values[i]
-                    val normalizedValue = if (valueRange == 0f) 0f else (value - minValue) / valueRange
-                    val y = canvasHeight * (1f - normalizedValue)
-                    if (i == 0) {
-                        path.moveTo(x, y)
-                    } else {
-                        path.lineTo(x, y)
-                    }
-                    // Simpan posisi titik, nilai, dan tanggal
-                    points.add(Offset(x, y))
-                    pointValues.add(value)
-                    pointDates.add(dates[i])
-                }
-                drawPath(
-                    path = path,
+            // Gambar titik data
+            for (i in 0 until pointCount) {
+                val x = canvasWidth * i / (pointCount - 1).coerceAtLeast(1)
+                val value = values[i]
+                val normalizedValue = if (valueRange == 0f) 0f else (value - minValue) / valueRange
+                val y = canvasHeight * (1f - normalizedValue)
+                drawCircle(
                     color = lineColor,
-                    style = Stroke(width = 4f)
+                    radius = 8f, // Titik lebih besar
+                    center = Offset(x, y)
                 )
 
-                // Gambar titik data
-                for (i in 0 until pointCount) {
-                    val x = canvasWidth * i / (pointCount - 1).coerceAtLeast(1)
-                    val value = values[i]
-                    val normalizedValue = if (valueRange == 0f) 0f else (value - minValue) / valueRange
-                    val y = canvasHeight * (1f - normalizedValue)
-                    drawCircle(
-                        color = lineColor,
-                        radius = 6f,
-                        center = Offset(x, y)
+                // Tampilkan nilai di atas titik yang dipilih
+                if (selectedPoint != null && points[i] == selectedPoint!!.first) {
+                    val displayValue = value.toInt() // Konversi ke integer
+                    drawContext.canvas.nativeCanvas.drawText(
+                        "$displayValue ${if (isWeightGraph) "kg" else "cm"}",
+                        x,
+                        y - 15.dp.toPx(), // Posisi teks di atas titik
+                        android.graphics.Paint().apply {
+                            color = textColor.toArgb()
+                            textSize = 12.sp.toPx()
+                            textAlign = android.graphics.Paint.Align.CENTER
+                            isAntiAlias = true
+                        }
                     )
                 }
             }
-
-            // Gambar label sumbu X
-            dates.forEachIndexed { index, date ->
-                val x = canvasWidth * index / (pointCount - 1).coerceAtLeast(1)
-                drawContext.canvas.nativeCanvas.drawText(
-                    date,
-                    x,
-                    canvasHeight + 30.dp.toPx(),
-                    android.graphics.Paint().apply {
-                        color = textColor.toArgb()
-                        textSize = 10.sp.toPx()
-                        textAlign = android.graphics.Paint.Align.CENTER
-                    }
-                )
-            }
         }
 
-        // Label sumbu
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 4.dp, end = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Date",
-                color = textColor,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Center
+        // Gambar label sumbu X
+        dates.forEachIndexed { index, date ->
+            val x = canvasWidth * index / (pointCount - 1).coerceAtLeast(1)
+            drawContext.canvas.nativeCanvas.drawText(
+                date,
+                x,
+                canvasHeight + 30.dp.toPx(),
+                android.graphics.Paint().apply {
+                    color = textColor.toArgb()
+                    textSize = 10.sp.toPx()
+                    textAlign = android.graphics.Paint.Align.CENTER
+                    isAntiAlias = true
+                }
             )
         }
     }
