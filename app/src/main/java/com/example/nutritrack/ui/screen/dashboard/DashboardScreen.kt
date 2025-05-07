@@ -86,18 +86,6 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
         else -> "Good Evening!"
     }
 
-    // Fetch graph data saat layar dimuat
-    LaunchedEffect(Unit) {
-        val authToken = authViewModel.getToken() ?: ""
-        if (authToken.isNotEmpty()) {
-            coroutineScope.launch {
-                viewModel.fetchGraphData(authToken)
-            }
-        } else {
-            viewModel.setErrorState("User not authenticated. Please sign in again.")
-        }
-    }
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -759,10 +747,10 @@ fun DashboardScreen(authViewModel: AuthViewModel) {
     // Fetch data when date changes or on initial load
     LaunchedEffect(selectedDate.timeInMillis) {
         val authToken = authViewModel.getToken() ?: ""
-
         if (authToken.isNotEmpty()) {
             coroutineScope.launch {
                 viewModel.fetchDailyReport(authToken, apiDateFormat.format(selectedDate.time))
+                viewModel.fetchGraphData(authToken, apiDateFormat.format(selectedDate.time))
             }
         } else {
             viewModel.setErrorState("User not authenticated. Please sign in again.")

@@ -61,12 +61,12 @@ class DashboardViewModel(private val repository: DashboardRepository, private va
         }
     }
 
-    fun fetchGraphData(authToken: String) {
+    fun fetchGraphData(authToken: String, date: String  ) {
         viewModelScope.launch {
             _graphState.value = GraphState.Loading
             try {
                 val userEmail = firebaseAuth.currentUser?.email ?: ""
-                val response = repository.showGraph(authToken, userEmail)
+                val response = repository.showGraph(authToken, userEmail, date)
 
                 when (response.status) {
                     "success" -> {

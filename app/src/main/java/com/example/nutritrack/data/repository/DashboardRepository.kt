@@ -13,7 +13,7 @@ class DashboardRepository {
         return summaryApiService.getDailyReport("Bearer $authToken", date)
     }
 
-    suspend fun showGraph(authToken: String, email: String): ShowGraphResponse {
-        return summaryApiService.showGraph("Bearer $authToken", email)
+    suspend fun showGraph(authToken: String, email: String, date: String): ShowGraphResponse {
+        return summaryApiService.showGraph("Bearer $authToken", email, date)
     }
 }

@@ -71,7 +71,8 @@ interface LaravelApiService {
     @GET("showGraph")
     suspend fun showGraph(
         @Header("Authorization") authToken: String,
-        @Query("email") email: String
+        @Query("email") email: String,
+        @Query("date") date: String
     ): ShowGraphResponse
 
 }
