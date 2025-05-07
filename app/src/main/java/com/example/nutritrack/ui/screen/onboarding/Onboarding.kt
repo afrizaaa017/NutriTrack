@@ -1,3 +1,5 @@
+package com.example.nutritrack.ui.screen.onboarding
+
 import android.app.DatePickerDialog
 import android.icu.util.Calendar
 import androidx.compose.foundation.clickable

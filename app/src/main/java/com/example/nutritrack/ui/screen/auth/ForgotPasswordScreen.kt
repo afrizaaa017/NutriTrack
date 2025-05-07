@@ -1,4 +1,4 @@
-package com.example.nutritrack.ui.auth
+package com.example.nutritrack.ui.screen.auth
 
 import android.content.Context
 import android.widget.Toast

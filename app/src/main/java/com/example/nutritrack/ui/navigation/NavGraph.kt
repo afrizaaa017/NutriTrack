@@ -1,6 +1,6 @@
 package com.example.nutritrack.ui.navigation
 
-import OnboardingScreen
+import com.example.nutritrack.ui.screen.onboarding.OnboardingScreen
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,9 +21,9 @@ import androidx.navigation.navArgument
 import com.example.nutritrack.MainScreen
 import com.example.nutritrack.viewmodel.AuthViewModel
 import com.example.nutritrack.viewmodel.AuthState
-import com.example.nutritrack.ui.auth.ForgotPasswordScreen
-import com.example.nutritrack.ui.auth.SignInScreen
-import com.example.nutritrack.ui.auth.SignUpScreen
+import com.example.nutritrack.ui.screen.auth.ForgotPasswordScreen
+import com.example.nutritrack.ui.screen.auth.SignInScreen
+import com.example.nutritrack.ui.screen.auth.SignUpScreen
 import com.example.nutritrack.ui.screen.dashboard.DashboardScreen
 import com.example.nutritrack.ui.screen.eats.FoodScreen
 import com.example.nutritrack.ui.screen.leaderboard.LeaderboardScreen

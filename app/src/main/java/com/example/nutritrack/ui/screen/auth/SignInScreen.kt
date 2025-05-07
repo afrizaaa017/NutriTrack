@@ -1,4 +1,4 @@
-package com.example.nutritrack.ui.auth
+package com.example.nutritrack.ui.screen.auth
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
@@ -20,40 +20,35 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.nutritrack.ui.navigation.BottomNavItem
 import com.example.nutritrack.viewmodel.AuthViewModel
 import com.example.nutritrack.viewmodel.AuthState
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpScreen(
+fun SignInScreen(
     modifier: Modifier = Modifier,
     navController: NavController,
     authViewModel: AuthViewModel
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
-    var confirmPassword by rememberSaveable { mutableStateOf("") }
 
     val authState by authViewModel.authState.observeAsState()
     val context = LocalContext.current
     val currentAuthState by rememberUpdatedState(authState)
 
-    var isEmailFocused by remember { mutableStateOf(false) }
     var isPasswordFocused by remember { mutableStateOf(false) }
-    var isConfirmPasswordFocused by remember { mutableStateOf(false) }
-
-    val isEmailValid = email.isNotEmpty()
+    var isEmailFocused by remember { mutableStateOf(false) }
     val isPasswordValid = password.length >= 6
-    val isConfirmPasswordValid = confirmPassword == password && confirmPassword.isNotEmpty()
 
     LaunchedEffect(currentAuthState) {
         when (currentAuthState) {
-            is AuthState.SignUp -> {
-                // Toast.makeText(context, "Sign up successfully!", Toast.LENGTH_SHORT).show()
+            is AuthState.Authenticated -> {
+                // Toast.makeText(context, "Sign in successfully", Toast.LENGTH_SHORT).show()
                 // delay(1500)
-                authViewModel.resetAuthState()
-                navController.navigate("signin") {
+                navController.navigate(BottomNavItem.Dashboard.route) {
                     popUpTo(navController.graph.startDestinationId) { inclusive = true }
                 }
             }
@@ -71,19 +66,22 @@ fun SignUpScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Sign Up",
+            text = "Welcome Back",
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.height(4.dp))
-        Text(text = "Create your new account", fontSize = 16.sp)
+        Text(text = "Sign In to Continue", fontSize = 16.sp)
 
         Spacer(modifier = Modifier.height(48.dp))
 
         OutlinedTextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = {
+                email = it
+                if (email.isNotEmpty()) isEmailFocused = false
+            },
             label = { Text(text = "Email") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             shape = RoundedCornerShape(12.dp),
@@ -92,13 +90,13 @@ fun SignUpScreen(
             visualTransformation = VisualTransformation.None,
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
-                unfocusedBorderColor = if (!isEmailFocused || isEmailValid) MaterialTheme.colorScheme.tertiary else Color.Red,
-                focusedBorderColor = if (isEmailValid) MaterialTheme.colorScheme.primary else Color.Red
+                unfocusedBorderColor = if (isEmailFocused && email.isEmpty()) Color.Red else MaterialTheme.colorScheme.tertiary,
+                focusedBorderColor = if (isEmailFocused && email.isEmpty()) Color.Red else MaterialTheme.colorScheme.primary
             ),
-            isError = isEmailFocused && !isEmailValid
+            isError = isEmailFocused && email.isEmpty()
         )
 
-        if (isEmailFocused && !isEmailValid) {
+        if (isEmailFocused && email.isEmpty()) {
             Text(
                 text = "Email cannot be empty",
                 color = Color.Red,
@@ -139,47 +137,19 @@ fun SignUpScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = {
-                confirmPassword = it
-                isConfirmPasswordFocused = true
-            },
-            label = { Text(text = "Confirm Password") },
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.width(280.dp),
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
-                unfocusedBorderColor = if (!isConfirmPasswordFocused || isConfirmPasswordValid) MaterialTheme.colorScheme.tertiary else Color.Red,
-                focusedBorderColor = if (isConfirmPasswordValid) MaterialTheme.colorScheme.primary else Color.Red
-            ),
-            isError = isConfirmPasswordFocused && !isConfirmPasswordValid,
-            visualTransformation = PasswordVisualTransformation()
-        )
-
-        if (isConfirmPasswordFocused && !isConfirmPasswordValid) {
-            Text(
-                text = "Passwords do not match",
-                color = Color.Red,
-                fontSize = 12.sp,
-                modifier = Modifier.padding(start = 8.dp, top = 4.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(36.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
         Button(
             onClick = {
-                isEmailFocused = true
-                isPasswordFocused = true
-                isConfirmPasswordFocused = true
-
-                if (isEmailValid && isPasswordValid && isConfirmPasswordValid) {
+                if (email.isEmpty()) {
+                    isEmailFocused = true
+                }
+                if (!isPasswordValid) {
+                    isPasswordFocused = true
+                }
+                if (email.isNotEmpty() && isPasswordValid) {
                     if (authState !is AuthState.Loading) {
-                        authViewModel.signUp(email, password, context)
+                        authViewModel.signIn(email, password, context)
                     }
                 }
             },
@@ -199,7 +169,7 @@ fun SignUpScreen(
             )
         ) {
             Text(
-                text = "Sign Up",
+                text = "Sign In",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -207,12 +177,18 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        TextButton(onClick = { navController.navigate("forgotpassword") }) {
+            Text(text = "Forgot Password?")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         TextButton(onClick = {
-            navController.navigate("signin") {
+            navController.navigate("signup") {
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
             }
         }) {
-            Text(text = "Already have an account? Sign In")
+            Text(text = "Don't have an account? Sign Up")
         }
     }
 }
