@@ -10,6 +10,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.example.nutritrack.data.api.RetrofitClient
+import com.example.nutritrack.data.model.ChangePasswordRequest
+import com.example.nutritrack.data.model.ChangePasswordResponse
 import com.example.nutritrack.data.model.OnboardingResponse
 import com.example.nutritrack.data.model.SignInResponse
 import com.example.nutritrack.data.model.SignOutResponse
@@ -17,6 +19,8 @@ import com.example.nutritrack.data.model.SignUpResponse
 import com.example.nutritrack.data.model.User
 import com.example.nutritrack.data.model.UserProfile
 import com.example.nutritrack.data.model.ResetUpdateResponse
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.CoroutineScope
@@ -341,6 +345,118 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     Toast.makeText(context, "Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    // change password
+    fun changePassword(email: String, currentPassword: String, newPassword: String, context: Context) {
+        val token = getToken() ?: ""
+        val request = ChangePasswordRequest(email, currentPassword, newPassword)
+
+        if (token.isEmpty()) {
+            Log.d("change password", "Token is empty, setting state to Unauthenticated")
+            _authState.value = AuthState.Unauthenticated
+            return
+        }
+
+        Log.d("change password", "Sending change password request to backend")
+        RetrofitClient.instance.changePassword("Bearer $token", request)
+            .enqueue(object : Callback<ChangePasswordResponse> {
+                override fun onResponse(call: Call<ChangePasswordResponse>, response: Response<ChangePasswordResponse>) {
+                    Log.d("change password", "Response received from backend: ${response.code()}")
+                    if (response.isSuccessful) {
+                        val responseBody = response.body()
+                        if (responseBody != null && responseBody.status) {
+                            Log.d("change password", "Backend change password successful, proceeding to Firebase change password")
+
+                            val user = FirebaseAuth.getInstance().currentUser
+                            if (user != null) {
+                                user.updatePassword(newPassword)
+                                    .addOnCompleteListener { task ->
+                                        if (task.isSuccessful) {
+                                            Log.d("change password", "Firebase password change successful")
+                                            Toast.makeText(context, "Password changed successfully", Toast.LENGTH_SHORT).show()
+                                            // _authState.value = AuthState.Authenticated
+                                        } else {
+                                            val exception = task.exception
+                                            Log.e("change password", "Firebase password change failed: ${exception?.message}")
+
+                                            if (exception is FirebaseAuthRecentLoginRequiredException) {
+                                                Log.d("change password", "Requires recent login, attempting reauthentication")
+
+                                                val credential = EmailAuthProvider.getCredential(email, currentPassword)
+                                                user.reauthenticate(credential)
+                                                    .addOnCompleteListener { reauthTask ->
+                                                        if (reauthTask.isSuccessful) {
+                                                            Log.d("change password", "Reauthentication successful, retry changing password")
+
+                                                            user.updatePassword(newPassword)
+                                                                .addOnCompleteListener { retryTask ->
+                                                                    if (retryTask.isSuccessful) {
+                                                                        Log.d("change password", "Password change successful after reauthentication")
+                                                                        Toast.makeText(context, "Password changed successfully", Toast.LENGTH_SHORT).show()
+//                                                                        // _authState.value = AuthState.Authenticated
+                                                                    } else {
+                                                                        Log.e("change password", "Password change failed after reauthentication: ${retryTask.exception?.message}")
+                                                                        rollbackBackendPassword(email, newPassword, currentPassword, context)
+                                                                        _authState.value = AuthState.Error("Failed to change password after reauthentication: ${retryTask.exception?.message}")
+                                                                    }
+                                                                }
+                                                        } else {
+                                                            Log.e("change password", "Reauthentication failed: ${reauthTask.exception?.message}")
+                                                            rollbackBackendPassword(email, newPassword, currentPassword, context)
+                                                            _authState.value = AuthState.Error("Reauthentication failed: ${reauthTask.exception?.message}")
+                                                        }
+                                                    }
+                                            } else {
+                                                rollbackBackendPassword(email, newPassword, currentPassword, context)
+                                                _authState.value = AuthState.Error("Firebase password change failed: ${exception?.message}")
+                                            }
+                                        }
+                                    }
+                            } else {
+                                Log.e("change password", "No user is currently signed in Firebase")
+                                rollbackBackendPassword(email, newPassword, currentPassword, context)
+                                _authState.value = AuthState.Error("No user is signed in")
+                            }
+
+                        } else {
+                            Log.e("change password", "Backend change password failed: ${responseBody?.message}")
+                            _authState.value = AuthState.Error(responseBody?.message ?: "Unknown backend error")
+                        }
+                    } else {
+                        Log.e("change password", "Backend change password failed with code: ${response.code()}")
+                        _authState.value = AuthState.Error("Failed to change password")
+                    }
+                }
+
+                override fun onFailure(call: Call<ChangePasswordResponse>, t: Throwable) {
+                    Log.e("change password", "Network error: ${t.message}")
+                    _authState.value = AuthState.Error(t.message ?: "Network error")
+                }
+            })
+    }
+
+    // rollback password di backend (jika firebase gagal)
+    private fun rollbackBackendPassword(email: String, failedNewPassword: String, oldPassword: String, context: Context) {
+        val token = getToken() ?: ""
+        val request = ChangePasswordRequest(email, failedNewPassword, oldPassword)
+        Log.d("rollback password", "Rolling back password in backend to old password")
+
+        RetrofitClient.instance.changePassword("Bearer $token", request)
+            .enqueue(object : Callback<ChangePasswordResponse> {
+                override fun onResponse(call: Call<ChangePasswordResponse>, response: Response<ChangePasswordResponse>) {
+                    if (response.isSuccessful && response.body()?.status == true) {
+                        Log.d("rollback password", "Backend password rollback successful")
+                        Toast.makeText(context, "Password rollback successful", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Log.e("rollback password", "Backend password rollback failed: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<ChangePasswordResponse>, t: Throwable) {
+                    Log.e("rollback password", "Network error during password rollback: ${t.message}")
+                }
+            })
     }
 
 

@@ -1,5 +1,6 @@
 package com.example.nutritrack.data.api
 
+import com.example.nutritrack.data.model.ChangePasswordRequest
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query
@@ -18,6 +19,7 @@ import com.example.nutritrack.data.model.UserProfile
 import com.example.nutritrack.data.model.ResetUpdateResponse
 import com.example.nutritrack.data.model.ShowGraphResponse
 import com.example.nutritrack.data.model.SummaryData
+import com.example.nutritrack.data.model.ChangePasswordResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -52,6 +54,12 @@ interface LaravelApiService {
 
     @POST("check-and-update-password")
     fun checkAndUpdatePassword(@Body request: User): Call<ResetUpdateResponse>
+
+    @POST("change-password")
+    fun changePassword(
+        @Header("Authorization") authToken: String,
+        @Body request: ChangePasswordRequest
+    ): Call<ChangePasswordResponse>
 
     @POST("onboarding")
     fun completeOnboarding(

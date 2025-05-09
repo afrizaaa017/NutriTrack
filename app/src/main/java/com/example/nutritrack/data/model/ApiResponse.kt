@@ -27,6 +27,11 @@ data class ResetUpdateResponse(
     @SerializedName("message") val message: String
 )
 
+data class ChangePasswordResponse(
+    @SerializedName("status") val status: Boolean,
+    @SerializedName("message") val message: String
+)
+
 data class OnboardingResponse(
     @SerializedName("message")
     val message: String,

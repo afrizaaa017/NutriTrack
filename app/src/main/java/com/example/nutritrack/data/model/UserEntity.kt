@@ -75,3 +75,10 @@ data class DailySummary(
     @SerializedName("height_recap")
     val heightRecap: Float
 )
+
+// untuk kebutuhan response change password agar aman, tidak terlihat di URL (jika menggunakan query)
+data class ChangePasswordRequest(
+    val email: String,
+    val currentPassword: String,
+    val newPassword: String
+)
